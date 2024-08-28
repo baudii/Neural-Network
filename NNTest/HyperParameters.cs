@@ -1,18 +1,17 @@
 ﻿public class HyperParameters
 {
-    public double initialLearningRate;
+    public double initialLearnRate;
     public double learnRateDecay;
-    public int minibatchSize;
+    public int batchSize;
     public double momentum;
     public double regularization;
 
-    public HyperParameters()
+    public HyperParameters(double initialLearnRate = 0.01d, double learnRateDecay = 0.001d, int batchSize = 32, double momentum = 0.9d, double regularization = 0.1d)
     {
-        initialLearningRate = 0.0019;
-        learnRateDecay = 0.04;
-        minibatchSize = 32;
-        momentum = 0.9;
-        regularization = 0.1;
+        this.initialLearnRate = initialLearnRate;
+        this.learnRateDecay = learnRateDecay;
+        this.batchSize = batchSize;
+        this.momentum = momentum;
+        this.regularization = regularization;
     }
-
 }

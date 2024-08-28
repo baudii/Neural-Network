@@ -10,8 +10,8 @@ namespace NNTest
         public int nodesOut;
         public int nodesIn;
 
-        public double[,] adjustedW;
-        public double[] adjustedB;
+        public double[,] adjustW;
+        public double[] adjustB;
 
         public double[,] wVelocities;
         public double[] bVelocities;
@@ -26,21 +26,15 @@ namespace NNTest
             w = new double[nodesOut, nodesIn];
             b = new double[nodesOut];
 
-            adjustedW = new double[nodesOut, nodesIn];
-            adjustedB = new double[nodesOut];
+            adjustW = new double[nodesOut, nodesIn];
+            adjustB = new double[nodesOut];
 
             wVelocities = new double[nodesOut, nodesIn];
             bVelocities = new double[nodesOut];
 
             activation = Activation.GetActivation(Activation.ActivationType.Linear);
 
-            RandomizeWeights();
-        }
-
-        public void SetWeightsAndBiases(double[,] weights, double[] biases)
-        {
-            this.w = weights;
-            this.b = biases;
+            RandomizeWeights(true);
         }
 
         public void PrintWeights()
@@ -60,65 +54,54 @@ namespace NNTest
             }
         }
 
-        public void RandomizeWeights()
+        public void RandomizeWeights(bool Gaussian)
         {
             var rand = new Random();
             for (int i = 0; i < nodesOut; i++)
             {
                 for (int j = 0; j < nodesIn; j++)
                 {
-                    w[i, j] = 1 - rand.NextDouble();
+                    double res = 1.0 - rand.NextDouble();
+                    if (Gaussian)
+                    {
+                        double u2 = 1.0 - rand.NextDouble();
+                        res = Math.Sqrt(-2.0 * Math.Log(res)) * Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)
+                    }
+                    w[i, j] = res;
                 }
             }
         }
-
-        public double[] Calculate(double[] input)
+        // Passing given inputs through every node of this layer.
+        public LayerLearnData ForwardPass(double[] input)
         {
-            var a = new double[nodesOut];
-            var z = new double[nodesOut];
+            var currentLayerLearnData = new LayerLearnData(nodesOut);
             for (int i = 0; i < nodesOut; i++)
             {
-                z[i] = b[i];
+                currentLayerLearnData.z[i] = b[i];
                 for (int j = 0; j < nodesIn; j++)
                 {
-                    z[i] += w[i, j] * input[j];
+                    currentLayerLearnData.z[i] += w[i, j] * input[j];
                 }
+                currentLayerLearnData.a[i] = activation.Activate(currentLayerLearnData.z, i);
             }
-            for (int i = 0; i < nodesOut; i++)
-            {
-                a[i] = activation.Activate(z, i);
-            }
+            return currentLayerLearnData;
+        }
 
-            return a;
-        }
-        public LearnData ForwardPass(double[] input)
-        {
-            var currentLayerData = new LearnData(nodesOut);
-            for (int i = 0; i < nodesOut; i++)
-            {
-                currentLayerData.z[i] = b[i];
-                for (int j = 0; j < nodesIn; j++)
-                {
-                    currentLayerData.z[i] += w[i, j] * input[j];
-                }
-            }
-            for (int i = 0; i < nodesOut; i++)
-            {
-                currentLayerData.a[i] = activation.Activate(currentLayerData.z, i);
-            }
-            return currentLayerData;
-        }
-        public void ApplyNewWeightsAndBiases(double learnRate)
+        /// <summary>
+        /// Apply changed values. Called after ForwardPass and BackPass methods
+        /// </summary>
+        /// <param name="learnRate">Use small number for better approximation</param>
+        public void AdjustParameters(double learnRate)
         {
             for (int i = 0; i < nodesOut; i++)
             {
-                b[i] -= adjustedB[i] * learnRate;
-                adjustedB[i] = 0;
+                b[i] -= adjustB[i] * learnRate;
+                adjustB[i] = 0;
 
                 for (int j = 0; j < nodesIn; j++)
                 {
-                    w[i, j] -= adjustedW[i, j] * learnRate;
-                    adjustedW[i, j] = 0;
+                    w[i, j] -= adjustW[i, j] * learnRate;
+                    adjustW[i, j] = 0;
                 }
             }
         }

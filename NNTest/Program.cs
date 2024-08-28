@@ -1,4 +1,5 @@
-﻿
+﻿using System.Diagnostics;
+
 namespace NNTest
 {
     public class Program
@@ -7,65 +8,102 @@ namespace NNTest
         static double currentLearnRate;
         static HyperParameters hyperParameters = new HyperParameters();
 
-        public static string path = "C:\\Users\\Dp\\Desktop\\Weights\\";
+        public static string path = "C:\\Users\\Хожик\\Desktop\\Weights\\";
 
 
         static void Main(string[] args)
         {
-            ChessTrainer(0);
-            //Square();
+            //ChessTrainer();
+            ChessTest(2700);
             //XOR();
+            //XOR_Test();
+            //Square();
+            //SquareTest();
         }
 
-        static void ChessTrainer(int index)
+        static void ChessTest(int startFrom)
         {
-            hyperParameters = new HyperParameters();
-            var fileName = "ChessWeights.txt";
             Random rand = new Random();
-            currentLearnRate = hyperParameters.initialLearningRate;
             var nn = new NeuralNetwork(64 * 2 + 6, hyperParameters, CostFunction.CostType.MSE);
-            nn.AddLayers(Activation.ActivationType.TanH, 64, 32);
+            nn.AddLayers(Activation.ActivationType.TanH, 128, 64, 32, 16);
             nn.AddLayers(Activation.ActivationType.Linear, 1);
+            for (int i = 0; i < 64; i++)
+            {
+                var chessPosition = FenEvalDBHandler.GetFenStrings(startFrom + i, 1);
+
+                var dfen = DecipherFen(chessPosition[0].fen);
+
+                var result = nn.Calculate(dfen);
+
+                Console.WriteLine("Expected: " + (chessPosition[0].eval) + "\nOutput: " + result[0] * 40);
+            }
+        }
+
+        static void ChessTrainer()
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+
+            hyperParameters = new HyperParameters();
+            var fileName = "ChessWeights_4.txt";
+            Random rand = new Random();
+            currentLearnRate = hyperParameters.initialLearnRate;
+            var nn = new NeuralNetwork(64 * 2 + 6, hyperParameters, CostFunction.CostType.MSE);
+            nn.AddLayers(Activation.ActivationType.TanH, 128, 64, 32, 16);
+            nn.AddLayers(Activation.ActivationType.Linear, 1);
+
             if (!nn.LoadWeights(path + fileName))
                 Console.WriteLine("Weights were not loaded");
 
-            var fenEvals = FenEvalDBHandler.GetFenStrings(18000, 3000);
-            InputData[] inputData = new InputData[fenEvals.Length];
+            var databaseArray = FenEvalDBHandler.GetFenStrings(2600, 400);
+            TrainingData[] trainingData = new TrainingData[databaseArray.Length];
             int b = 0;
-            foreach (var item in fenEvals)
+            foreach (var item in databaseArray)
             {
                 var desipheredFen = DecipherFen(item.fen);
 
-                inputData[b] = new InputData(desipheredFen, new double[] { item.eval });
+                trainingData[b] = new TrainingData(desipheredFen, new double[] { item.eval / 40 });
                 b++;
             }
-            for (int epoch = 0; epoch < 20; epoch++)
+            for (int epoch = 0; epoch < 100; epoch++)
             {
-                for (int i = 0; i < 40; i++)
+                for (int i = 0; i < 50; i++)
                 {
-                    nn.Learn(inputData, currentLearnRate, 32);
+                    nn.Learn(trainingData, 0.01d, 32);
                 }
 
-                inputData = Shuffle(rand, inputData);
+                trainingData = Shuffle(rand, trainingData);
                 EpochCompleted(epoch);
-                nn.SaveWeights(path + fileName);
-            }
 
-
-/*            var fenEvals = FenEvalDBHandler.GetFenStrings(32 * index + 1, 400);
-            for (int epoch = 0; epoch < 100000; epoch++)
-            {
-                foreach (var item in fenEvals)
+                if (stopwatch.Elapsed.TotalSeconds > 5)
                 {
-                    var learnData = new LearnData(DecipherFen(item.fen), new double[] { item.eval });
-                    nn.Learn(learnData, 0.9);
+                    stopwatch.Restart();
+                    nn.SaveWeights(path + fileName);
+                    Console.WriteLine("------------------ SAVED ---------------");
+                    Console.WriteLine(epoch + "%");
                 }
-            }*/
-            
+            }
+            nn.SaveWeights(path + fileName);
+
+            Console.WriteLine("------------------ FINISHED ---------------");
+            /*            var fenEvals = FenEvalDBHandler.GetFenStrings(32 * index + 1, 400);
+                        for (int epoch = 0; epoch < 100000; epoch++)
+                        {
+                            foreach (var item in fenEvals)
+                            {
+                                var learnData = new LearnData(DecipherFen(item.fen), new double[] { item.eval });
+                                nn.Learn(learnData, 0.9);
+                            }
+                        }*/
+
         }
 
         static double[] DecipherFen(string fen)
         {
+            // FEN example:
+            //rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+
             int cell = 0;
             double[] inputData = new double[64 * 2 + 6]; //(cells * (pieces + enPassant) * sides + whose turn is it + castles  + 50moveCounter
             Dictionary<char, double> pieceValue = new Dictionary<char, double> { { 'p', 0.1 }, { 'n', 0.31 }, { 'b', 0.32 }, { 'r', 0.5 }, { 'q', 0.9 }, { 'k', 1 }, };
@@ -98,34 +136,28 @@ namespace NNTest
                     inputData[cell] = value * multiplier;
                     cell++;
                 }
-
-                if (spaceCount == 1)
+                else if (spaceCount == 1)
                 {
                     if (fen[i] == 'w')
                         inputData[128] = 1;
                     else
                         inputData[128] = -1;
-                    continue;
                 }
-
-                if (spaceCount == 2)
+                else if (spaceCount == 2)
                 {
                     if (fen[i] == '-')
                         continue;
 
-                    int multiplier = 1;
+                    int castleIndex = 129;
                     if (char.IsLower(fen[i]))
-                        multiplier = -1;
+                        castleIndex = 131;
 
                     if (char.ToLower(fen[i]) == 'k')
-                        inputData[131 - multiplier - 1] = 1;
+                        inputData[castleIndex] = 1;
                     else if (char.ToLower(fen[i]) == 'q')
-                        inputData[132 - multiplier - 1] = 1;
-
+                        inputData[castleIndex + 1] = 1;
                 }
-
-
-                if (spaceCount == 3)
+                else if (spaceCount == 3)
                 {
                     if (fen[i] == '-')
                         continue;
@@ -140,7 +172,7 @@ namespace NNTest
                         column = (fen[i] % 32) - 1;
                     }
                 }
-                if (spaceCount == 4)
+                else if (spaceCount == 4)
                 {
                     inputData[133] = int.Parse(fen[i].ToString());
                     break;
@@ -148,7 +180,7 @@ namespace NNTest
             }
             return inputData;
         }
-        /*static double[] DecipherFen(string fen)
+/*        static double[] DecipherFen(string fen)
         {
             int cell = 0;
             double[] inputData = new double[64 * 7 * 2 + 2 + 4 + 1]; //(cells * (pieces + enPassant) * sides + whose turn is it + castles  + 50moveCounter
@@ -234,14 +266,18 @@ namespace NNTest
 
         static void Square()
         {
-            string fileName = "Squares.txt";
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            string fileName = "Squares_Relu_8_8_4.txt";
             NeuralNetwork nn = new NeuralNetwork(1, hyperParameters, CostFunction.CostType.MSE);
-            nn.AddLayers(Activation.ActivationType.Sigmoid, 8, 8);
+            nn.AddLayers(Activation.ActivationType.ReLU, 8, 8, 4);
             nn.AddLayers(Activation.ActivationType.Linear, 1);
+            currentLearnRate = 0.01f; 
 
             Random rng = new Random();
 
-            List<InputData> learnDatas = new List<InputData>();
+            List<TrainingData> learnDatas = new List<TrainingData>();
             nn.LoadWeights(path + fileName);
 
             /*for (double x = 0; x <= 1; x += 0.0001d)
@@ -252,22 +288,52 @@ namespace NNTest
                 Console.WriteLine(Math.Round(res[0], 4) + ", expected: " + Math.Round((x * x * x + 12 * x + 5),4));
             }*/
 
-            for (int i = -100; i < 100; i++)
+            for (double x = 0; x < 100; x++)
             {
-                double x = (i * 0.01);
-                learnDatas.Add(new InputData(new double[] { x }, new double[] { x * x * x + 12 * x + 5 }));
+                var normalizedInput = x * 0.01d;
+                learnDatas.Add(new TrainingData(new double[] { normalizedInput }, new double[] { x * x * 0.0001 }));
             }
             var l = learnDatas.ToArray();
-            for (int i = 0; i < 100000; i++)
+
+            int i = 0;
+            while (true)
             {
-                nn.Learn(l, currentLearnRate, 4);
+                nn.Learn(l, 0.01f, 8); ;
                 if (i % 10 == 0)
                 {
                     l = Shuffle(rng, l);
                 }
+                if (stopwatch.Elapsed.TotalSeconds > 10)
+                {
+                    stopwatch.Restart();
+                    nn.SaveWeights(path + fileName);
+                    Console.WriteLine("------------------ SAVED ---------------");
+                }
                 EpochCompleted(i);
+                i++;
             }
-            nn.SaveWeights(path + fileName);
+        }
+
+        static void SquareTest()
+        {
+            NeuralNetwork nn = new NeuralNetwork(1, hyperParameters, CostFunction.CostType.MSE);
+            string fileName = "Squares.txt";
+            nn.AddLayers(Activation.ActivationType.Sigmoid, 8, 8);
+            /*            string fileName = "Squares_Relu_4_4_1.txt";
+                        nn.AddLayers(Activation.ActivationType.ReLU, 4, 4);*/
+
+            nn.AddLayers(Activation.ActivationType.Linear, 1);
+            nn.LoadWeights(path + fileName);
+
+
+
+            Console.WriteLine("X= (0<X<100)");
+            string xstr = Console.ReadLine();
+            double.TryParse(xstr, out var x);
+            Console.WriteLine("You entered: " + x);
+            Console.WriteLine("X^2=");
+            double[] result = nn.Calculate(new double[] { x * 0.01d });
+            Console.WriteLine(result[0] * 10000);
         }
 
         public static T[] GetArrayFromIndex<T>(T[] array, int index, int amount)
@@ -296,7 +362,7 @@ namespace NNTest
         }
         static void EpochCompleted(int epochCount)
         {
-            currentLearnRate = (1.0 / (1.0 + hyperParameters.learnRateDecay * epochCount)) * hyperParameters.initialLearningRate;
+            currentLearnRate = hyperParameters.initialLearnRate / (1.0 + hyperParameters.learnRateDecay * epochCount);
         }
 
         static void AND()
@@ -311,7 +377,7 @@ namespace NNTest
             {
                 int x = (int)Math.Round(rand.NextDouble());
                 int y = (int)Math.Round(rand.NextDouble());
-                var input = new InputData(new double[] { x, y }, new double[] { x & y });
+                var input = new TrainingData(new double[] { x, y }, new double[] { x & y });
 
                 nn.Learn(input, 0.1);
             }
@@ -319,21 +385,52 @@ namespace NNTest
 
         static void XOR()
         {
+            Stopwatch sw = Stopwatch.StartNew();
+            string fileName = "XOR_Relu_2_2_1_MSLE.txt";
             hyperParameters = new HyperParameters();
             NeuralNetwork nn = new NeuralNetwork(2, hyperParameters, CostFunction.CostType.MSLE);
             nn.AddLayers(Activation.ActivationType.ReLU, 2);
             nn.AddLayers(Activation.ActivationType.Linear, 1);
 
+            currentLearnRate = hyperParameters.initialLearnRate;
+            nn.LoadWeights(path + fileName);
             Random rand = new Random();
 
             for (int i = 0; i < 30000000; i++)
             {
                 int x = (int)Math.Round(rand.NextDouble());
                 int y = (int)Math.Round(rand.NextDouble());
-                var input = new InputData(new double[] { x, y }, new double[] { x ^ y });
+                var input = new TrainingData(new double[] { x, y }, new double[] { x ^ y });
 
-                nn.Learn(input, 0.01);
+                nn.Learn(input, 0.0001);
+
+                
             }
+
+            nn.SaveWeights(path + fileName);
+        }
+
+        static void XOR_Test()
+        {
+            string fileName = "XOR_Relu_2_2_1_MSLE.txt";
+            hyperParameters = new HyperParameters();
+            NeuralNetwork nn = new NeuralNetwork(2, hyperParameters, CostFunction.CostType.MSLE);
+            nn.AddLayers(Activation.ActivationType.ReLU, 2);
+            nn.AddLayers(Activation.ActivationType.Linear, 1);
+
+            nn.LoadWeights(path + fileName);
+
+            Console.WriteLine("A=");
+            string astr = Console.ReadLine();
+            int.TryParse(astr, out int a);
+            Console.WriteLine("B=");
+            string bstr = Console.ReadLine();
+            int.TryParse(bstr, out int b);
+            Console.WriteLine("A^B=" + (a^b));
+            Console.WriteLine("NN prediction:");
+            double[] result = nn.Calculate(new double[] { a, b });
+            Console.WriteLine(result[0]);
+
         }
     }
 }

@@ -1,20 +1,32 @@
 ﻿using System.Diagnostics;
+using ManagedCuda;
+using ManagedCuda.BasicTypes;
+
 
 namespace NNTest
 {
     public class NeuralNetwork
     {
-        Stopwatch timer;
         List<Layer> layers;
-        double[] initialInputs;
+        int inputNodesCount;
         ICostFunction costFunction;
         HyperParameters hyperParameters;
         double overallCost = 0;
+        
+        // Debug variables
+        Stopwatch timer;
+        double logUpdateTime = 1f;
         int iterationsElapsed = 0;
-        double updateTime = 1;
-        public NeuralNetwork(int inputSize, HyperParameters hyperParameters, CostFunction.CostType costFunctionType = CostFunction.CostType.MSE)
+
+        /// <summary>
+        /// Create neural network
+        /// </summary>
+        /// <param name="inputNodesCount">Number of input nodes</param>
+        /// <param name="hyperParameters">Hyper parameters</param>
+        /// <param name="costFunctionType">Select cost function from CostFunction.CostType enum</param>
+        public NeuralNetwork(int inputNodesCount, HyperParameters hyperParameters, CostFunction.CostType costFunctionType = CostFunction.CostType.MSE)
         {
-            initialInputs = new double[inputSize];
+            this.inputNodesCount = inputNodesCount;
             layers = new List<Layer>();
             costFunction = CostFunction.GetCostFunction(costFunctionType);
             this.hyperParameters = hyperParameters;
@@ -22,6 +34,11 @@ namespace NNTest
             timer.Start();
         }
 
+        /// <summary>
+        /// Function you call after you created an object of type NeuralNetwork. You can have combination of different layers and activation functions
+        /// </summary>
+        /// <param name="activationType">Select activation function from Activation.ActivationType enum</param>
+        /// <param name="sizes">Chose consequtive numbers of nodes (N). Each number represents a new layer with N amount of nodes</param>
         public void AddLayers(Activation.ActivationType activationType, params int[] sizes)
         {
             for (int i = 0; i < sizes.Length; i++)
@@ -31,66 +48,90 @@ namespace NNTest
                 layers.Add(layer);
             }
 
-            int GetNodesIn() => layers.Count == 0 ? initialInputs.Length : layers.Last().nodesOut;
+            int GetNodesIn() => layers.Count == 0 ? inputNodesCount: layers.Last().nodesOut;
         }
 
+        /// <summary>
+        /// Calculates an output with preset parameters. Used for trained Neural Network to simply get an answer
+        /// </summary>
         public double[] Calculate(double[] input)
         {
-            for (int i = 0; i < layers.Count; i++)
-                input = layers[i].Calculate(input);
+            foreach (var layer in layers)
+            {
+                var layerLearnData = layer.ForwardPass(input);
+                input = layerLearnData.a;
+            }
+
             return input;
         }
-        public void Learn(InputData input, double learnRate)
+
+        /// <summary>
+        /// Use this function to train neural network on a single InputData
+        /// </summary>
+        public void Learn(TrainingData input, double learnRate)
         {
-            var learnData = ForwardPass(input.data, input.expected);
-            BackPass(learnData, input.expected);
+            var learnData = ForwardPass(input);
+            BackPass(learnData, input);
 
             foreach (var layer in layers)
-                layer.ApplyNewWeightsAndBiases(learnRate);
+                layer.AdjustParameters(learnRate);
         }
-        public void Learn(InputData[] minibatch, double learnRate)
+
+        /// <summary>
+        /// Use this function to train neural network on a single batch of InputData. Batch can be of any size. <br /><br />
+        /// <b>NOTE:</b> Every item of a batch is trained independently with average adjustments. 
+        /// </summary>
+        public void Learn(TrainingData[] batch, double learnRate)
         {
-            Parallel.For(0, minibatch.Length, (i) =>
+            Parallel.For(0, batch.Length, (i) =>
             {
-                var learnData = ForwardPass(minibatch[i].data, minibatch[i].expected);
-                BackPass(learnData, minibatch[i].expected);
+                var learnData = ForwardPass(batch[i]);
+                BackPass(learnData, batch[i]);
             });
 
             foreach (var layer in layers)
-                layer.ApplyNewWeightsAndBiases(learnRate / minibatch.Length);
+                layer.AdjustParameters(learnRate / batch.Length);
         }
 
-        public void Learn(InputData[] batch, double learnRate, int miniBatchSize)
+        /// <summary>
+        /// Use this function to train neural network on a big dataset. Items in dataset will be split into batches of given size and for each batch "Learn" function will be called.
+        /// </summary>
+        public void Learn(TrainingData[] dataset, double learnRate, int batchSize)
         {
-            for (int i = 0; i < batch.Length / miniBatchSize + Math.Sign(batch.Length % miniBatchSize); i++)
+            for (int i = 0; i < dataset.Length / batchSize + Math.Sign(dataset.Length % batchSize); i++) // doing 1 additional iteration if (batch.Length % batchSize) != 0
             {
-                var miniBatch = new InputData[Math.Min(batch.Length - i * miniBatchSize, miniBatchSize)];
+                var miniBatch = new TrainingData[Math.Min(dataset.Length - i * batchSize, batchSize)]; // getting the remainder if batchSize is bigger than the remainder
 
                 for (int j = 0; j < miniBatch.Length; j++)
-                    miniBatch[j] = batch[i * miniBatchSize + j];
+                    miniBatch[j] = dataset[i * batchSize + j];
 
                 Learn(miniBatch, learnRate);
             }
         }
-
-        List<LearnData> ForwardPass(double[] input, double[] expected)
+        
+        /// <summary>
+        /// Performs forward pass operation
+        /// </summary>
+        /// <returns>A list calculated data for every layer</returns>
+        List<LayerLearnData> ForwardPass(TrainingData inputData)
         {
-            if (input.Length != initialInputs.Length)
-                throw new ArgumentOutOfRangeException("Input size mismatch");
-            initialInputs = input;
-            List<LearnData> learnData = new List<LearnData>();
+            if (inputData.data.Length != inputNodesCount || inputData.expected.Length != layers.Last().nodesOut)
+                throw new ArgumentOutOfRangeException("Input data size mismatch");
+            
+            List<LayerLearnData> layerLearnDatas = new List<LayerLearnData>();
+
+            double[] initialInputs = inputData.data;
 
             foreach (var layer in layers)
             {
-                learnData.Add(layer.ForwardPass(input));
-                input = learnData.Last().a;
+                var layerLearnData = layer.ForwardPass(inputData.data);
+                layerLearnDatas.Add(layerLearnData);
+                inputData.data = layerLearnData.a;
             }
 
-            var cost = costFunction.CalcCost(learnData.Last().a, expected);
-
-            PrintResults(cost, learnData.Last().a[0], expected[0]);
-
-            return learnData;
+            var cost = costFunction.CalcCost(layerLearnDatas.Last().a, inputData.expected);
+            Log(cost, layerLearnDatas.Last().a[0], inputData.expected[0], initialInputs);
+            return layerLearnDatas;
         }
 
         /*void BackPass(double[] output, double[] expected, LearnData learnData)
@@ -121,76 +162,101 @@ namespace NNTest
                     UpdateGradients(layers[i], layers[i - 1].a, derivMemo);
             }
         }*/
-        void BackPass(List<LearnData> learnDatas, double[] expected)
-        {
-            var last = layers.Count - 1;
-            CalculateDerivMemoOutput(layers[last], learnDatas[last], expected);
-            AdjustWeightsAndBiases(layers[last], learnDatas[last].derivMemo, learnDatas[last-1].a);
 
+        /// <summary>
+        /// Uses the layer data from forward pass to perform backwards propagation and cache adjustments
+        /// </summary>
+        /// <param name="layerLearnDatas">Result of the ForwardPass</param>
+        /// <param name="inputData">Input item that was used in respective ForwardPass method</param>
+        void BackPass(List<LayerLearnData> layerLearnDatas, TrainingData inputData)
+        {
+            int last = layers.Count - 1;
+
+            CalculateDerivMemoOutput(layers[last], layerLearnDatas[last], inputData.expected);
+            CacheAdjustments(layers[last], layerLearnDatas[last].derivMemo, layerLearnDatas[last-1].a);
+
+            // Left and Right layers stand for the normal visualisation of Neural Network, where Input layer is leftmost and Output layer is rightmost
+            // So, "left layer" means left neighbour of the current layer
             double[] leftActivations;
             for (int i = last - 1; i >= 0; i--)
             {
-                CalculateDerivMemoHidden(layers[i], layers[i + 1], learnDatas[i], learnDatas[i + 1].derivMemo);
+                CalculateDerivMemoHidden(layers[i], layerLearnDatas[i], layers[i + 1].w, layerLearnDatas[i + 1].derivMemo);
 
-                if (i > 0) leftActivations = learnDatas[i - 1].a;
-                else leftActivations = initialInputs;
+                if (i > 0) leftActivations = layerLearnDatas[i - 1].a;
+                else leftActivations = inputData.data;
 
-                AdjustWeightsAndBiases(layers[i], learnDatas[i].derivMemo, leftActivations);
+                CacheAdjustments(layers[i], layerLearnDatas[i].derivMemo, leftActivations);
             }
         }
 
-        void CalculateDerivMemoOutput(Layer lastLayer, LearnData lastLayerLearnData, double[] expected)
-        {
-            for (int i = 0; i < lastLayer.nodesOut; i++)
-            {
-                var costDeriv = costFunction.CalcDerivative(lastLayerLearnData.a, expected, i);
-                var activationDeriv = lastLayer.activation.Derivative(lastLayerLearnData.z, i);
-                /*                CrossEntropy + Softmax
-                                * var result = layers[last].a[i];
-                                if (expected[i] == 1)
-                                    result -= 1;*/
+        // Calcuating the derivatives of the Cost function to the Inputs. Finding local minima using gradient descend. All "dy/dx" stand for partial derivatives.
 
-                lastLayerLearnData.derivMemo[i] = activationDeriv * costDeriv;
+        /// <summary>
+        /// Calculate derivative of the Output layer. 
+        /// </summary>
+        void CalculateDerivMemoOutput(Layer outputLayer, LayerLearnData outputLayerLearnData, double[] expected)
+        {
+            for (int i = 0; i < outputLayer.nodesOut; i++)
+            {
+                double dCdA = costFunction.CalcDerivative(outputLayerLearnData.a, expected, i); // dC/dA
+                double dAdZ = outputLayer.activation.Derivative(outputLayerLearnData.z, i); // dA/dZ
+                /*CrossEntropy + Softmax:
+                 var result = layers[last].a[i];
+                 if (expected[i] == 1)
+                    result -= 1;
+                */
+
+                outputLayerLearnData.derivMemo[i] = dCdA * dAdZ;
             }
         }
 
-        void CalculateDerivMemoHidden(Layer currentLayer, Layer rightLayer, LearnData curLayerLearnData, double[] rightLayerDerivMemo)
+        // Calculating the derivative of a single Hidden layer by using dynamic programming technique of memoization
+        /// <summary>
+        /// Calculate derivative of a Hidden layer.
+        /// </summary>
+        void CalculateDerivMemoHidden(Layer curLayer, LayerLearnData curLayerLearnData, double[,] rightLayerWeights, double[] rightLayerDerivMemo)
         {
-            for (int i = 0; i < currentLayer.nodesOut; i++)
+            for (int i = 0; i < curLayer.nodesOut; i++)
             {
-                double dCdA = 0;
-                for (int j = 0; j < rightLayer.nodesOut; j++)
+                double dCdA = 0; // dC/dA
+                for (int j = 0; j < rightLayerWeights.GetLength(0); j++) // rightLayerWeights.GetLength(0) = rightLayer.nodesOut (amount of nodes in NEXT layer)
                 {
-                    dCdA += rightLayer.w[j, i] * rightLayerDerivMemo[j];
+                    dCdA += rightLayerWeights[j, i] * rightLayerDerivMemo[j];
                 }
-                var dAdZ = currentLayer.activation.Derivative(curLayerLearnData.z, i);
+                double dAdZ = curLayer.activation.Derivative(curLayerLearnData.z, i); // dA/dZ
 
                 curLayerLearnData.derivMemo[i] = dCdA * dAdZ;
             }
         }
 
-        void AdjustWeightsAndBiases(Layer layer, double[] derivMemo, double[] leftActivations)
+
+        /// <summary>
+        /// Perform calculted adjustments. <br />
+        /// <b>NOTE:</b> This method only caches the adjustments. Call Layer.AdjustParameters to apply the changes.
+        /// </summary>
+        void CacheAdjustments(Layer layer, double[] derivMemo, double[] leftActivations)
         {
-            lock (layer.adjustedW)
+            lock (layer.adjustW)
                 for (int i = 0; i < layer.nodesOut; i++)
                     for (int j = 0; j < layer.nodesIn; j++)
-                        layer.adjustedW[i, j] += derivMemo[i] * leftActivations[j];
+                        layer.adjustW[i, j] += derivMemo[i] * leftActivations[j];
             
-            lock (layer.adjustedB)
+            lock (layer.adjustB)
                 for (int i = 0; i < layer.nodesOut; i++)
-                    layer.adjustedB[i] += derivMemo[i];
+                    layer.adjustB[i] += derivMemo[i];
         }
 
-        void PrintResults(double summedCost, double output, double expected)
+        // Logs out a learning state of a network. Used for debugging
+        void Log(double summedCost, double output, double expected, double[] initialInputs)
         {
             lock (timer)
             {
                 overallCost += summedCost;
                 iterationsElapsed++;
 
-                if (timer.Elapsed.TotalSeconds > updateTime)
+                if (timer.Elapsed.TotalSeconds > logUpdateTime)
                 {
-                    Console.WriteLine("Cost: " + overallCost / iterationsElapsed + "\n Output: " + output + "\n Expected: " + expected);
+                    Console.WriteLine(" Average cost: " + overallCost / iterationsElapsed + "\n Initial Inputs:" + initialInputs[0] + "\n Output: " + output * 40 + "\n Expected: " + expected * 40);
                     overallCost = 0;
                     iterationsElapsed = 0;
                     timer.Restart();
@@ -198,6 +264,7 @@ namespace NNTest
             }
         }
 
+        // Saves trained params of the network for later use
         public void SaveWeights(string path)
         {
             if (!File.Exists(path))
@@ -205,27 +272,32 @@ namespace NNTest
                 var file = File.Create(path);
                 file.Close();
             }
+
             List<string> saveData = new List<string>();
-            string networkId = "I_" + layers.Count + "_" + initialInputs.Length;
+            string networkId = "I_" + layers.Count + "_" + inputNodesCount; // simple id of the network
             for (int l = 0; l < layers.Count; l++)
             {
-                networkId += "_" + layers[l].nodesOut + "_" + layers[l].nodesIn;
+                networkId += "_" + layers[l].nodesOut + "_" + layers[l].nodesIn; 
             }
             saveData.Add(networkId);
+            // example: I_3_1_8_1_8_8_1_8
+
+
             for (int l = 0; l < layers.Count; l++)
             {
-                for (int i = 0; i < layers[l].nodesOut; i++)
+                for (int n = 0; n < layers[l].nodesOut; n++)
                 {
-                    saveData.Add("b_" + l + "_" + i + "_" + layers[l].b[i] + "_" + layers[l].bVelocities[i]);
+                    saveData.Add("b_" + l + "_" + n + "_" + layers[l].b[n] + "_" + layers[l].bVelocities[n]); // Bias for every node
                     for (int j = 0; j < layers[l].nodesIn; j++)
                     {
-                        saveData.Add(l + "_" + i + "_" + j + "_" + layers[l].w[i, j] + "_" + layers[l].wVelocities[i, j]);
+                        saveData.Add(l + "_" + n + "_" + j + "_" + layers[l].w[n, j] + "_" + layers[l].wVelocities[n, j]); // Weight for every node in
                     }
                 }
             }
             File.WriteAllLines(path, saveData);
         }
 
+        // Loads trained params from .txt file
         public bool LoadWeights(string path)
         {
             if (!File.Exists(path))
@@ -240,7 +312,7 @@ namespace NNTest
                 
                 if (res[0] == "I")
                 {
-                    if (initialInputs.Length != int.Parse(res[2]) || layers.Count != int.Parse(res[1]))
+                    if (inputNodesCount != int.Parse(res[2]) || layers.Count != int.Parse(res[1]))
                         return false;
 
                     int charIndex = 2;

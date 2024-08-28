@@ -2,7 +2,6 @@
 
 public readonly struct Activation
 {
-
     public enum ActivationType
     {
         Sigmoid,
