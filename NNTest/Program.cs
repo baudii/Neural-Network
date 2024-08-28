@@ -8,7 +8,7 @@ namespace NNTest
         static double currentLearnRate;
         static HyperParameters hyperParameters = new HyperParameters();
 
-        public static string path = "C:\\Users\\Хожик\\Desktop\\Weights\\";
+        public static string path = "C:\\Users\\USERNAME\\Desktop\\Weights\\";
 
 
         static void Main(string[] args)

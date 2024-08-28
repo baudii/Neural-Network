@@ -4,7 +4,7 @@ namespace NNTest
 {
     public static class FenEvalDBHandler
     {
-        const string db_path = @"URI=file:D:\Загрузки\\LichessDB\\test.db";
+        const string db_path = @"URI=file:D:\Downloads\\LichessDB\\test.db";
         public static FenEval[] GetFenStrings(int from, int amount)
         {
             using var connection = new SQLiteConnection(db_path);
