@@ -41,6 +41,16 @@
             Data container for input and expected output. Used for Neural Network training.
             </summary>
         </member>
+        <member name="F:KKNeuralNetwork.TrainingData.data">
+            <summary>
+            Input data
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.TrainingData.expected">
+            <summary>
+            Expected output values
+            </summary>
+        </member>
         <member name="M:KKNeuralNetwork.TrainingData.#ctor">
             <summary>
             NOTE: Default contructor creates empty arrays!
@@ -221,6 +231,7 @@
             <b>NOTE:</b> Every item of a batch is trained independently with average adjustments. 
             </summary>
             <param name="batch">Array of a TraningData</param>
+            <param name="learnRate">Learn Rate</param>
         </member>
         <member name="M:KKNeuralNetwork.NeuralNetwork.Learn(KKNeuralNetwork.TrainingData[],System.Int32,System.Double)">
             <summary>
@@ -257,6 +268,19 @@
             Perform calculted adjustments. <br />
             <b>NOTE:</b> This method only caches the adjustments. Call Layer.AdjustParameters to apply the changes.
             </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.SaveWeights(System.String)">
+            <summary>
+            Saves neural network state into the file at the path.
+            </summary>
+            <param name="path">Path to the file</param>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.LoadWeights(System.String)">
+            <summary>
+            Loads saved neural network state from file at path
+            </summary>
+            <param name="path">Path to the file</param>
+            <returns>True if data was sucessfully loaded. False otherwise</returns>
         </member>
     </members>
 </doc>

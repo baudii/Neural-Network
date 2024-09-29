@@ -5,7 +5,13 @@
     /// </summary>
     public struct TrainingData
     {
+        /// <summary>
+        /// Input data
+        /// </summary>
         public double[] data;
+        /// <summary>
+        /// Expected output values
+        /// </summary>
         public double[] expected;
 
         /// <summary>

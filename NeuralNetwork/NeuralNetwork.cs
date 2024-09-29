@@ -85,6 +85,7 @@ namespace KKNeuralNetwork
 		/// <b>NOTE:</b> Every item of a batch is trained independently with average adjustments. 
 		/// </summary>
 		/// <param name="batch">Array of a TraningData</param>
+		/// <param name="learnRate">Learn Rate</param>
 		public void Learn(TrainingData[] batch, double learnRate)
         {
             Parallel.For(0, batch.Length, (i) =>
@@ -289,7 +290,10 @@ namespace KKNeuralNetwork
 		}
 
 		#region Save/Load
-		// Saves trained params of the network for later use
+		/// <summary>
+		/// Saves neural network state into the file at the path.
+		/// </summary>
+		/// <param name="path">Path to the file</param>
 		public void SaveWeights(string path)
 		{
 			try
@@ -334,7 +338,11 @@ namespace KKNeuralNetwork
 			}
 		}
 
-		// Loads trained params from .txt file
+        /// <summary>
+        /// Loads saved neural network state from file at path
+        /// </summary>
+        /// <param name="path">Path to the file</param>
+        /// <returns>True if data was sucessfully loaded. False otherwise</returns>
 		public bool LoadWeights(string path)
 		{
 			try
