@@ -1,17 +1,19 @@
 ﻿using System.Diagnostics;
+using NeuralNetwork.Data;
+using NeuralNetwork.Functions;
+using NeuralNetwork.Functions;
 
-namespace NNTest
+namespace NeuralNetwork
 {
-	/// <summary>
-	/// The NeuralNetwork class represents an implementation of an artificial neural network with the ability to create layers, 
-	/// select activation functions, and use various loss functions. 
-	/// It includes methods for training the network on individual examples, batches of data, and large datasets using mini-batches. 
-	/// Support is provided for both forward propagation and backpropagation, as well as logging the training process. 
-	/// There is also functionality to save and load network weights for future use.
-	/// </summary>
-	public class NeuralNetwork
+    /// <summary>
+    /// The NeuralNetwork class represents an implementation of an artificial neural network with the ability to create layers, 
+    /// select activation functions, and use various loss functions. 
+    /// It includes methods for training the network on individual examples, batches of data, and large datasets using mini-batches. 
+    /// Support is provided for both forward propagation and backpropagation, as well as logging the training process. 
+    /// There is also functionality to save and load network weights for future use.
+    /// </summary>
+    public class NeuralNetwork
     {
-        HyperParameters hyperParameters;
         List<Layer> layers;
         int inputNodesCount;
         ICostFunction costFunction;
@@ -28,10 +30,9 @@ namespace NNTest
         /// <param name="inputNodesCount">Number of input nodes</param>
         /// <param name="hyperParameters">Hyper parameters</param>
         /// <param name="costFunctionType">Select cost function from CostFunction.CostType enum</param>
-        public NeuralNetwork(int inputNodesCount, HyperParameters hyperParameters, CostFunction.CostType costFunctionType = CostFunction.CostType.MSE)
+        public NeuralNetwork(int inputNodesCount, CostFunction.CostType costFunctionType = CostFunction.CostType.MSE)
         {
             this.inputNodesCount = inputNodesCount;
-            this.hyperParameters = hyperParameters;
 
             layers = new List<Layer>();
             costFunction = CostFunction.GetCostFunction(costFunctionType);
@@ -82,11 +83,12 @@ namespace NNTest
                 layer.AdjustParameters(learnRate);
         }
 
-        /// <summary>
-        /// Use this function to train neural network on a single batch of InputData. Batch can be of any size. <br /><br />
-        /// <b>NOTE:</b> Every item of a batch is trained independently with average adjustments. 
-        /// </summary>
-        public void Learn(TrainingData[] batch, double learnRate)
+		/// <summary>
+		/// Use this function to train neural network on a single batch of InputData. Batch can be of any size. <br /><br />
+		/// <b>NOTE:</b> Every item of a batch is trained independently with average adjustments. 
+		/// </summary>
+		/// <param name="batch">Array of a TraningData</param>
+		public void Learn(TrainingData[] batch, double learnRate)
         {
             Parallel.For(0, batch.Length, (i) =>
             {
@@ -98,10 +100,12 @@ namespace NNTest
                 layer.AdjustParameters(learnRate / batch.Length);
         }
 
-        /// <summary>
-        /// Use this function to train neural network on a big dataset. Items in dataset will be split into batches of given size and for each batch "Learn" function will be called.
-        /// </summary>
-        public void Learn(TrainingData[] dataset, double learnRate, int batchSize)
+		/// <summary>
+		/// Use this function to train neural network on a big dataset. Items in dataset will be split into batches of given size and for each batch "Learn" function will be called.
+		/// </summary>
+		/// <param name="dataset">Array of a TraningData</param>
+		/// <param name="batchSize">Size of batch that dataSet will be split into</param>
+		public void Learn(TrainingData[] dataset, int batchSize, double learnRate)
         {
             for (int i = 0; i < dataset.Length / batchSize + Math.Sign(dataset.Length % batchSize); i++) // doing 1 additional iteration if (batch.Length % batchSize) != 0
             {

@@ -1,27 +1,30 @@
-﻿namespace NNTest
-{
-	/// <summary>
-	/// The Layer class represents a single layer in a neural network, containing nodes (neurons), 
-	/// weights connecting this layer to the previous one, and biases for each node. It supports 
-	/// initializing weights, applying forward passes (computing the layer's output given inputs), 
-	/// and adjusting weights and biases based on backpropagation results.
-	///
-	/// Key features:
-	/// - Holds the weight matrix (w) and bias vector (b) for connections to the previous layer.
-	/// - Supports random initialization of weights, with an option to use Gaussian distribution.
-	/// - Allows for computation of the weighted sum (z) and application of an activation function 
-	///   to get the final output (a) during the forward pass.
-	/// - Provides methods to print the current weights and biases for debugging purposes.
-	/// - Updates weights and biases based on gradient adjustments calculated during training, 
-	///   using the AdjustParameters method, which applies the learning rate.
-	/// - Optionally supports advanced optimization techniques through weight and bias velocities.
-	///
-	/// The class is designed to be part of a fully connected feedforward neural network and interacts 
-	/// with other classes such as IActivation for applying activation functions and LayerLearnData 
-	/// for storing intermediate computation results.
-	/// </summary>
+﻿using NeuralNetwork.Data;
+using NeuralNetwork.Functions;
 
-	public class Layer
+namespace NeuralNetwork
+{
+    /// <summary>
+    /// The Layer class represents a single layer in a neural network, containing nodes (neurons), 
+    /// weights connecting this layer to the previous one, and biases for each node. It supports 
+    /// initializing weights, applying forward passes (computing the layer's output given inputs), 
+    /// and adjusting weights and biases based on backpropagation results.
+    ///
+    /// Key features:
+    /// - Holds the weight matrix (w) and bias vector (b) for connections to the previous layer.
+    /// - Supports random initialization of weights, with an option to use Gaussian distribution.
+    /// - Allows for computation of the weighted sum (z) and application of an activation function 
+    ///   to get the final output (a) during the forward pass.
+    /// - Provides methods to print the current weights and biases for debugging purposes.
+    /// - Updates weights and biases based on gradient adjustments calculated during training, 
+    ///   using the AdjustParameters method, which applies the learning rate.
+    /// - Optionally supports advanced optimization techniques through weight and bias velocities.
+    ///
+    /// The class is designed to be part of a fully connected feedforward neural network and interacts 
+    /// with other classes such as IActivation for applying activation functions and LayerLearnData 
+    /// for storing intermediate computation results.
+    /// </summary>
+
+    public class Layer
     {
         public double[,] w;
         public double[] b;

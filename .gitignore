@@ -14,6 +14,12 @@ x64/
 [Bb]in/
 [Oo]bj/
 
+# IDE
+.vs/
+.idea/
+.vscode/
+
+
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
