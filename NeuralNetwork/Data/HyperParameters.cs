@@ -1,4 +1,4 @@
-﻿namespace NeuralNetwork.Data
+﻿namespace KKNeuralNetwork
 {
     /// <summary>
     /// Class representing hyperparameters for training a neural network.

@@ -1,4 +1,4 @@
-﻿namespace NeuralNetwork.Functions
+﻿namespace KKNeuralNetwork
 {
     /// <summary>
     /// Provides various cost functions for evaluating the difference between predicted

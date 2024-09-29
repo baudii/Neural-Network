@@ -1,4 +1,4 @@
-﻿namespace NeuralNetwork.Functions
+﻿namespace KKNeuralNetwork
 {
     /// <summary>
     /// Interface for cost functions, providing methods for calculating the cost and its derivative.

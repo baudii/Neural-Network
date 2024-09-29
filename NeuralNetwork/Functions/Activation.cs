@@ -1,6 +1,6 @@
 ﻿using static System.Math;
 
-namespace NeuralNetwork.Functions
+namespace KKNeuralNetwork
 {
     /// <summary>
     /// Provides various activation functions commonly used in neural networks. 

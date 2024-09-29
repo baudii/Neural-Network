@@ -1,4 +1,4 @@
-﻿namespace NeuralNetwork.Functions
+﻿namespace KKNeuralNetwork
 {
     /// <summary>
     /// Interface representing an activation function in a neural network.

@@ -1,4 +1,4 @@
-﻿namespace NeuralNetwork.Data
+﻿namespace KKNeuralNetwork
 {
     /// <summary>
     /// The LayerLearnData class is designed to store intermediate results during 

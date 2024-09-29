@@ -1,7 +1,5 @@
-﻿using NeuralNetwork.Data;
-using NeuralNetwork.Functions;
-
-namespace NeuralNetwork
+﻿
+namespace KKNeuralNetwork
 {
     /// <summary>
     /// The Layer class represents a single layer in a neural network, containing nodes (neurons), 

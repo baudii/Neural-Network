@@ -1,4 +1,4 @@
-﻿namespace NeuralNetwork.Data
+﻿namespace KKNeuralNetwork
 {
     /// <summary>
     /// Data container for input and expected output. Used for Neural Network training.

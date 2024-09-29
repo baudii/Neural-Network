@@ -1,9 +1,6 @@
 ﻿using System.Diagnostics;
-using NeuralNetwork.Data;
-using NeuralNetwork.Functions;
-using NeuralNetwork.Functions;
 
-namespace NeuralNetwork
+namespace KKNeuralNetwork
 {
     /// <summary>
     /// The NeuralNetwork class represents an implementation of an artificial neural network with the ability to create layers, 
