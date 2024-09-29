@@ -1,8 +1,15 @@
 ﻿using static System.Math;
 
+/// <summary>
+/// Provides various activation functions commonly used in neural networks. 
+/// The functions are implemented as readonly structs for efficient performance.
+/// </summary>
 public readonly struct Activation
 {
-    public enum ActivationType
+	/// <summary>
+	/// Enum representing different types of activation functions.
+	/// </summary>
+	public enum ActivationType
     {
         Sigmoid,
         TanH,
@@ -12,7 +19,12 @@ public readonly struct Activation
         Linear
     }
 
-    public static IActivation GetActivation(ActivationType type)
+	/// <summary>
+	/// Returns the corresponding activation function implementation based on the specified activation type.
+	/// </summary>
+	/// <param name="type">The type of activation function to return.</param>
+	/// <returns>An instance of a class implementing IActivation.</returns>
+	public static IActivation GetActivation(ActivationType type)
     {
         switch (type)
         {
@@ -32,6 +44,8 @@ public readonly struct Activation
                 return new Sigmoid();
         }
     }
+
+    // Implementation of Activation functions
 
     public readonly struct Sigmoid : IActivation
     {

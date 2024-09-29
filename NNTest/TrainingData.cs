@@ -1,12 +1,15 @@
 ﻿namespace NNTest
 {
-    public struct TrainingData
+	/// <summary>
+	/// Data container for input and expected output. Used for Neural Network training.
+	/// </summary>
+	public struct TrainingData
     {
         public double[] data;
         public double[] expected;
 
         /// <summary>
-        /// Data container for input and expected output. Used for Neural Network training.
+        /// NOTE: Default contructor creates empty arrays!
         /// </summary>
         public TrainingData()
         {

@@ -1,9 +1,27 @@
-﻿
-using System.Reflection.Emit;
-
-namespace NNTest
+﻿namespace NNTest
 {
-    public class Layer
+	/// <summary>
+	/// The Layer class represents a single layer in a neural network, containing nodes (neurons), 
+	/// weights connecting this layer to the previous one, and biases for each node. It supports 
+	/// initializing weights, applying forward passes (computing the layer's output given inputs), 
+	/// and adjusting weights and biases based on backpropagation results.
+	///
+	/// Key features:
+	/// - Holds the weight matrix (w) and bias vector (b) for connections to the previous layer.
+	/// - Supports random initialization of weights, with an option to use Gaussian distribution.
+	/// - Allows for computation of the weighted sum (z) and application of an activation function 
+	///   to get the final output (a) during the forward pass.
+	/// - Provides methods to print the current weights and biases for debugging purposes.
+	/// - Updates weights and biases based on gradient adjustments calculated during training, 
+	///   using the AdjustParameters method, which applies the learning rate.
+	/// - Optionally supports advanced optimization techniques through weight and bias velocities.
+	///
+	/// The class is designed to be part of a fully connected feedforward neural network and interacts 
+	/// with other classes such as IActivation for applying activation functions and LayerLearnData 
+	/// for storing intermediate computation results.
+	/// </summary>
+
+	public class Layer
     {
         public double[,] w;
         public double[] b;
@@ -37,7 +55,10 @@ namespace NNTest
             RandomizeWeights(true);
         }
 
-        public void PrintWeights()
+		/// <summary>
+		/// Prints all weights and biases to the console for debugging purposes.
+        /// </summary>
+		public void PrintWeights()
         {
             Console.WriteLine("Weights:");
             for (int i = 0; i < nodesOut; i++)
@@ -54,7 +75,11 @@ namespace NNTest
             }
         }
 
-        public void RandomizeWeights(bool Gaussian)
+        /// <summary>
+        /// Fills Layer.w array with random values in range (0,1]
+        /// </summary>
+        /// <param name="IsGaussian">If true, will use Gaussian normal distribution.</param>
+        public void RandomizeWeights(bool IsGaussian)
         {
             var rand = new Random();
             for (int i = 0; i < nodesOut; i++)
@@ -62,7 +87,7 @@ namespace NNTest
                 for (int j = 0; j < nodesIn; j++)
                 {
                     double res = 1.0 - rand.NextDouble();
-                    if (Gaussian)
+                    if (IsGaussian)
                     {
                         double u2 = 1.0 - rand.NextDouble();
                         res = Math.Sqrt(-2.0 * Math.Log(res)) * Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)
@@ -71,8 +96,15 @@ namespace NNTest
                 }
             }
         }
-        // Passing given inputs through every node of this layer.
-        public LayerLearnData ForwardPass(double[] input)
+		/// <summary>
+		/// Passes given input through every node of this layer. 
+		/// Creates LayerLearnData object and fills:
+		/// LayerLearnData.z (output after multiplying with weights and adding bias)
+		/// LayerLearnData.a (output after activation funcction applied)
+		/// </summary>
+		/// <param name="input">Size of this array must equal nodesIn of this layer</param>
+		/// <returns>LayerLearnData object</returns>
+		public LayerLearnData ForwardPass(double[] input)
         {
             var currentLayerLearnData = new LayerLearnData(nodesOut);
             for (int i = 0; i < nodesOut; i++)
@@ -87,11 +119,12 @@ namespace NNTest
             return currentLayerLearnData;
         }
 
-        /// <summary>
-        /// Apply changed values. Called after ForwardPass and BackPass methods
-        /// </summary>
-        /// <param name="learnRate">Use small number for better approximation</param>
-        public void AdjustParameters(double learnRate)
+
+		/// <summary>
+		/// Updates the weights and biases based on the adjustments calculated during backpropagation.
+		/// </summary>
+		/// <param name="learnRate">The learning rate to apply for weight updates.</param>
+		public void AdjustParameters(double learnRate)
         {
             for (int i = 0; i < nodesOut; i++)
             {

@@ -1,16 +1,20 @@
 ﻿using System.Diagnostics;
-using ManagedCuda;
-using ManagedCuda.BasicTypes;
-
 
 namespace NNTest
 {
-    public class NeuralNetwork
+	/// <summary>
+	/// The NeuralNetwork class represents an implementation of an artificial neural network with the ability to create layers, 
+	/// select activation functions, and use various loss functions. 
+	/// It includes methods for training the network on individual examples, batches of data, and large datasets using mini-batches. 
+	/// Support is provided for both forward propagation and backpropagation, as well as logging the training process. 
+	/// There is also functionality to save and load network weights for future use.
+	/// </summary>
+	public class NeuralNetwork
     {
+        HyperParameters hyperParameters;
         List<Layer> layers;
         int inputNodesCount;
         ICostFunction costFunction;
-        HyperParameters hyperParameters;
         double overallCost = 0;
         
         // Debug variables
@@ -27,9 +31,10 @@ namespace NNTest
         public NeuralNetwork(int inputNodesCount, HyperParameters hyperParameters, CostFunction.CostType costFunctionType = CostFunction.CostType.MSE)
         {
             this.inputNodesCount = inputNodesCount;
+            this.hyperParameters = hyperParameters;
+
             layers = new List<Layer>();
             costFunction = CostFunction.GetCostFunction(costFunctionType);
-            this.hyperParameters = hyperParameters;
             timer = new Stopwatch();
             timer.Start();
         }
@@ -130,11 +135,13 @@ namespace NNTest
             }
 
             var cost = costFunction.CalcCost(layerLearnDatas.Last().a, inputData.expected);
-            Log(cost, layerLearnDatas.Last().a[0], inputData.expected[0], initialInputs);
+            LogLearningState(cost, layerLearnDatas.Last().a[0], inputData.expected[0], initialInputs);
             return layerLearnDatas;
         }
 
-        /*void BackPass(double[] output, double[] expected, LearnData learnData)
+        /* - OLD
+        
+        void BackPass(double[] output, double[] expected, LearnData learnData)
         {
             var last = layers.Count - 1;
             for (int i = 0; i < layers[last].nodesOut; i++)
@@ -211,6 +218,7 @@ namespace NNTest
         }
 
         // Calculating the derivative of a single Hidden layer by using dynamic programming technique of memoization
+
         /// <summary>
         /// Calculate derivative of a Hidden layer.
         /// </summary>
@@ -246,104 +254,156 @@ namespace NNTest
                     layer.adjustB[i] += derivMemo[i];
         }
 
-        // Logs out a learning state of a network. Used for debugging
-        void Log(double summedCost, double output, double expected, double[] initialInputs)
-        {
-            lock (timer)
-            {
-                overallCost += summedCost;
-                iterationsElapsed++;
+		// Logs out a learning state of the network. Used for debugging and monitoring the learning process
+		void LogLearningState(double summedCost, double output, double expected, double[] initialInputs)
+		{
+			try
+			{
+				lock (timer)
+				{
+					overallCost += summedCost;
+					iterationsElapsed++;
 
-                if (timer.Elapsed.TotalSeconds > logUpdateTime)
+					// Log the average cost, outputs, expected values, and inputs at specified time intervals
+					if (timer.Elapsed.TotalSeconds > logUpdateTime)
+					{
+						Console.WriteLine("----- Neural Network Training Log -----");
+						Console.WriteLine($"Average Cost: {overallCost / iterationsElapsed:F4}");
+						Console.WriteLine($"Initial Input: {initialInputs[0]:F4}");
+						Console.WriteLine($"Output (scaled): {output * 40:F4}");
+						Console.WriteLine($"Expected (scaled): {expected * 40:F4}");
+						Console.WriteLine("------ End of Log ------\n");
+
+						overallCost = 0;
+						iterationsElapsed = 0;
+						timer.Restart();
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				// Handle unexpected errors in logging
+				Console.WriteLine("An error occurred during logging: " + ex.Message);
+			}
+		}
+
+		#region Save/Load
+		// Saves trained params of the network for later use
+		public void SaveWeights(string path)
+		{
+			try
+			{
+				if (!File.Exists(path))
+				{
+					var file = File.Create(path);
+					file.Close();
+					Console.WriteLine("File wasn't found at " + path + "\nCreating new instance.");
+				}
+
+				List<string> saveData = new List<string>();
+				string networkId = "I_" + layers.Count + "_" + inputNodesCount; // simple id of the network
+				for (int l = 0; l < layers.Count; l++)
+				{
+					networkId += "_" + layers[l].nodesOut + "_" + layers[l].nodesIn;
+				}
+				saveData.Add(networkId);
+				// example: I_3_1_8_1_8_8_1_8
+
+				for (int l = 0; l < layers.Count; l++)
+				{
+					for (int n = 0; n < layers[l].nodesOut; n++)
+					{
+						saveData.Add("b_" + l + "_" + n + "_" + layers[l].b[n] + "_" + layers[l].bVelocities[n]); // Bias for every node
+						for (int j = 0; j < layers[l].nodesIn; j++)
+						{
+							saveData.Add(l + "_" + n + "_" + j + "_" + layers[l].w[n, j] + "_" + layers[l].wVelocities[n, j]); // Weight for every node in
+						}
+					}
+				}
+				File.WriteAllLines(path, saveData);
+				Console.WriteLine("------ Successfully Saved ------");
+			}
+			catch (IOException ioEx)
+			{
+				Console.WriteLine("Saving failed: I/O error occurred while saving weights: " + ioEx.Message);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Saving failed: Unexpected error occurred while saving weights: " + ex.Message);
+			}
+		}
+
+		// Loads trained params from .txt file
+		public bool LoadWeights(string path)
+		{
+			try
+			{
+				if (!File.Exists(path))
                 {
-                    Console.WriteLine(" Average cost: " + overallCost / iterationsElapsed + "\n Initial Inputs:" + initialInputs[0] + "\n Output: " + output * 40 + "\n Expected: " + expected * 40);
-                    overallCost = 0;
-                    iterationsElapsed = 0;
-                    timer.Restart();
+					Console.WriteLine("Loading failed: File doesn't exist at path " + path);
+					return false;
                 }
-            }
-        }
 
-        // Saves trained params of the network for later use
-        public void SaveWeights(string path)
-        {
-            if (!File.Exists(path))
-            {
-                var file = File.Create(path);
-                file.Close();
-            }
+				var loadData = File.ReadAllLines(path);
 
-            List<string> saveData = new List<string>();
-            string networkId = "I_" + layers.Count + "_" + inputNodesCount; // simple id of the network
-            for (int l = 0; l < layers.Count; l++)
-            {
-                networkId += "_" + layers[l].nodesOut + "_" + layers[l].nodesIn; 
-            }
-            saveData.Add(networkId);
-            // example: I_3_1_8_1_8_8_1_8
+				foreach (string line in loadData)
+				{
+					int l, i, j;
+					var res = line.Split('_');
 
+					if (res[0] == "I")
+					{
+						if (inputNodesCount != int.Parse(res[2]) || layers.Count != int.Parse(res[1]))
+							return false;
 
-            for (int l = 0; l < layers.Count; l++)
-            {
-                for (int n = 0; n < layers[l].nodesOut; n++)
-                {
-                    saveData.Add("b_" + l + "_" + n + "_" + layers[l].b[n] + "_" + layers[l].bVelocities[n]); // Bias for every node
-                    for (int j = 0; j < layers[l].nodesIn; j++)
-                    {
-                        saveData.Add(l + "_" + n + "_" + j + "_" + layers[l].w[n, j] + "_" + layers[l].wVelocities[n, j]); // Weight for every node in
-                    }
-                }
-            }
-            File.WriteAllLines(path, saveData);
-        }
+						int charIndex = 2;
+						for (int k = 0; k < layers.Count; k++)
+						{
+							charIndex++;
+							if (layers[k].nodesOut != int.Parse(res[charIndex]))
+								return false;
+							charIndex++;
+							if (layers[k].nodesIn != int.Parse(res[charIndex]))
+								return false;
+						}
+						continue;
+					}
+					if (res[0] == "b")
+					{
+						l = int.Parse(res[1]);
+						i = int.Parse(res[2]);
+						layers[l].b[i] = double.Parse(res[3]);
+						layers[l].bVelocities[i] = double.Parse(res[4]);
+						continue;
+					}
 
-        // Loads trained params from .txt file
-        public bool LoadWeights(string path)
-        {
-            if (!File.Exists(path))
-                return false;
+					l = int.Parse(res[0]);
+					i = int.Parse(res[1]);
+					j = int.Parse(res[2]);
 
-            var loadData = File.ReadAllLines(path);
+					layers[l].w[i, j] = double.Parse(res[3]);
+					layers[l].wVelocities[i, j] = double.Parse(res[4]);
+				}
+				Console.WriteLine("------ Successfully Loaded ------");
+				return true;
+			}
+			catch (IOException ioEx)
+			{
+				Console.WriteLine("Loading failed: I/O error occurred while loading weights: " + ioEx.Message);
+				return false;
+			}
+			catch (FormatException formatEx)
+			{
+				Console.WriteLine("Loading failed: Data format error occurred while loading weights: " + formatEx.Message);
+				return false;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Loading failed: Unexpected error occurred while loading weights: " + ex.Message);
+				return false;
+			}
+		}
 
-            foreach (string line in loadData)
-            {
-                int l, i, j;
-                var res = line.Split('_');
-                
-                if (res[0] == "I")
-                {
-                    if (inputNodesCount != int.Parse(res[2]) || layers.Count != int.Parse(res[1]))
-                        return false;
-
-                    int charIndex = 2;
-                    for (int k = 0; k < layers.Count; k++)
-                    {
-                        charIndex++;
-                        if (layers[k].nodesOut != int.Parse(res[charIndex]))
-                            return false;
-                        charIndex++;
-                        if (layers[k].nodesIn != int.Parse(res[charIndex]))
-                            return false;
-                    }
-                    continue;
-                }
-                if (res[0] == "b")
-                {
-                    l = int.Parse(res[1]);
-                    i = int.Parse(res[2]);
-                    layers[l].b[i] = double.Parse(res[3]);
-                    layers[l].bVelocities[i] = double.Parse(res[4]);
-                    continue;
-                }
-                               
-                l = int.Parse(res[0]);
-                i = int.Parse(res[1]);
-                j = int.Parse(res[2]);
-
-                layers[l].w[i, j] = double.Parse(res[3]);
-                layers[l].wVelocities[i, j] = double.Parse(res[4]);
-            }
-            return true;
-        }
-    }
+		#endregion
+	}
 }

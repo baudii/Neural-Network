@@ -10,11 +10,12 @@ namespace NNTest
 
         public static string path = "C:\\Users\\USERNAME\\Desktop\\Weights\\";
 
-
+        // Testing different neural network
+        // It can learn!
         static void Main(string[] args)
         {
-            //ChessTrainer();
-            ChessTest(2700);
+            ChessTrainer();
+            //ChessTest(2700);
             //XOR();
             //XOR_Test();
             //Square();
@@ -31,7 +32,7 @@ namespace NNTest
             {
                 var chessPosition = FenEvalDBHandler.GetFenStrings(startFrom + i, 1);
 
-                var dfen = DecipherFen(chessPosition[0].fen);
+                var dfen = FenEvalDBHandler.DecipherFen(chessPosition[0].fen);
 
                 var result = nn.Calculate(dfen);
 
@@ -61,7 +62,7 @@ namespace NNTest
             int b = 0;
             foreach (var item in databaseArray)
             {
-                var desipheredFen = DecipherFen(item.fen);
+                var desipheredFen = FenEvalDBHandler.DecipherFen(item.fen);
 
                 trainingData[b] = new TrainingData(desipheredFen, new double[] { item.eval / 40 });
                 b++;
@@ -80,13 +81,11 @@ namespace NNTest
                 {
                     stopwatch.Restart();
                     nn.SaveWeights(path + fileName);
-                    Console.WriteLine("------------------ SAVED ---------------");
                     Console.WriteLine(epoch + "%");
                 }
             }
             nn.SaveWeights(path + fileName);
 
-            Console.WriteLine("------------------ FINISHED ---------------");
             /*            var fenEvals = FenEvalDBHandler.GetFenStrings(32 * index + 1, 400);
                         for (int epoch = 0; epoch < 100000; epoch++)
                         {
@@ -99,87 +98,7 @@ namespace NNTest
 
         }
 
-        static double[] DecipherFen(string fen)
-        {
-            // FEN example:
-            //rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 
-            int cell = 0;
-            double[] inputData = new double[64 * 2 + 6]; //(cells * (pieces + enPassant) * sides + whose turn is it + castles  + 50moveCounter
-            Dictionary<char, double> pieceValue = new Dictionary<char, double> { { 'p', 0.1 }, { 'n', 0.31 }, { 'b', 0.32 }, { 'r', 0.5 }, { 'q', 0.9 }, { 'k', 1 }, };
-            int spaceCount = 0;
-
-            int column = 0;
-            for (var i = 0; i < fen.Length; i++)
-            {
-                if (fen[i] == '/')
-                    continue;
-
-                if (fen[i] == ' ')
-                {
-                    spaceCount++;
-                    continue;
-                }
-
-                if (char.IsDigit(fen[i]) && spaceCount == 0)
-                {
-                    cell += int.Parse(fen[i].ToString());
-                    continue;
-                }
-
-                if (spaceCount == 0)
-                {
-                    int multiplier = 1;
-                    if (char.IsLower(fen[i]))
-                        multiplier = -1;
-                    double value = pieceValue.GetValueOrDefault(char.ToLower(fen[i]));
-                    inputData[cell] = value * multiplier;
-                    cell++;
-                }
-                else if (spaceCount == 1)
-                {
-                    if (fen[i] == 'w')
-                        inputData[128] = 1;
-                    else
-                        inputData[128] = -1;
-                }
-                else if (spaceCount == 2)
-                {
-                    if (fen[i] == '-')
-                        continue;
-
-                    int castleIndex = 129;
-                    if (char.IsLower(fen[i]))
-                        castleIndex = 131;
-
-                    if (char.ToLower(fen[i]) == 'k')
-                        inputData[castleIndex] = 1;
-                    else if (char.ToLower(fen[i]) == 'q')
-                        inputData[castleIndex + 1] = 1;
-                }
-                else if (spaceCount == 3)
-                {
-                    if (fen[i] == '-')
-                        continue;
-
-                    if (char.IsDigit(fen[i]))
-                    {
-                        int row = int.Parse(fen[i].ToString()) - 1;
-                        inputData[64 + row * column] = 1;
-                    }
-                    else
-                    {
-                        column = (fen[i] % 32) - 1;
-                    }
-                }
-                else if (spaceCount == 4)
-                {
-                    inputData[133] = int.Parse(fen[i].ToString());
-                    break;
-                }
-            }
-            return inputData;
-        }
 /*        static double[] DecipherFen(string fen)
         {
             int cell = 0;

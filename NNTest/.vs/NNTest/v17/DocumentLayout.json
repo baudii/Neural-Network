@@ -1,0 +1,190 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|d:\\github\\neural-from-scratch-test\\nntest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|d:\\github\\neural-from-scratch-test\\nntest\\neuralnetwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|solutionrelative:neuralnetwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|d:\\github\\neural-from-scratch-test\\nntest\\trainingdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|solutionrelative:trainingdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|d:\\github\\neural-from-scratch-test\\nntest\\costfunction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|solutionrelative:costfunction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|d:\\github\\neural-from-scratch-test\\nntest\\activationfunc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|solutionrelative:activationfunc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|d:\\github\\neural-from-scratch-test\\nntest\\activation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|solutionrelative:activation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|d:\\github\\neural-from-scratch-test\\nntest\\hyperparameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|solutionrelative:hyperparameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|d:\\github\\neural-from-scratch-test\\nntest\\iactivation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|solutionrelative:iactivation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|d:\\github\\neural-from-scratch-test\\nntest\\layerlearndata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|solutionrelative:layerlearndata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|d:\\github\\neural-from-scratch-test\\nntest\\layer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A5A969BD-C12B-42E6-8FA9-D6BD523BD7CE}|NNTest.csproj|solutionrelative:layer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AQIAADIAAAAAAAAAAAAwwFQAAAARAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-29T11:29:11.735Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "NeuralNetwork.cs",
+              "DocumentMoniker": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\NeuralNetwork.cs",
+              "RelativeDocumentMoniker": "NeuralNetwork.cs",
+              "ToolTip": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\NeuralNetwork.cs",
+              "RelativeToolTip": "NeuralNetwork.cs",
+              "ViewState": "AQIAAM4AAAAAAAAAAAAcwAEBAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-29T10:41:53.076Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "TrainingData.cs",
+              "DocumentMoniker": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\TrainingData.cs",
+              "RelativeDocumentMoniker": "TrainingData.cs",
+              "ToolTip": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\TrainingData.cs",
+              "RelativeToolTip": "TrainingData.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAA6AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-29T11:27:34.572Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Activation.cs",
+              "DocumentMoniker": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\Activation.cs",
+              "RelativeDocumentMoniker": "Activation.cs",
+              "ToolTip": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\Activation.cs",
+              "RelativeToolTip": "Activation.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAADAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-29T11:20:32.901Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CostFunction.cs",
+              "DocumentMoniker": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\CostFunction.cs",
+              "RelativeDocumentMoniker": "CostFunction.cs",
+              "ToolTip": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\CostFunction.cs",
+              "RelativeToolTip": "CostFunction.cs",
+              "ViewState": "AQIAAGgAAAAAAAAAAAAewIcAAABPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-29T11:17:26.355Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ActivationFunc.cs",
+              "DocumentMoniker": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\ActivationFunc.cs",
+              "RelativeDocumentMoniker": "ActivationFunc.cs",
+              "ToolTip": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\ActivationFunc.cs",
+              "RelativeToolTip": "ActivationFunc.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-29T11:14:20.281Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "HyperParameters.cs",
+              "DocumentMoniker": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\HyperParameters.cs",
+              "RelativeDocumentMoniker": "HyperParameters.cs",
+              "ToolTip": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\HyperParameters.cs",
+              "RelativeToolTip": "HyperParameters.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-29T11:14:16.572Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "IActivation.cs",
+              "DocumentMoniker": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\IActivation.cs",
+              "RelativeDocumentMoniker": "IActivation.cs",
+              "ToolTip": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\IActivation.cs",
+              "RelativeToolTip": "IActivation.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-29T11:14:09.841Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "LayerLearnData.cs",
+              "DocumentMoniker": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\LayerLearnData.cs",
+              "RelativeDocumentMoniker": "LayerLearnData.cs",
+              "ToolTip": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\LayerLearnData.cs",
+              "RelativeToolTip": "LayerLearnData.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-29T10:59:43.918Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Layer.cs",
+              "DocumentMoniker": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\Layer.cs",
+              "RelativeDocumentMoniker": "Layer.cs",
+              "ToolTip": "D:\\GitHub\\neural-from-scratch-test\\NNTest\\Layer.cs",
+              "RelativeToolTip": "Layer.cs",
+              "ViewState": "AQIAAFMAAAAAAAAAAAAIwHQAAAAlAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-29T10:41:47.358Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

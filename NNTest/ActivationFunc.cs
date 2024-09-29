@@ -1,6 +1,7 @@
-﻿using System.Reflection.Metadata.Ecma335;
-
-public static class Func
+﻿/// <summary>
+/// Depricated
+/// </summary>
+public static class ActivationFunc
 {
     public static double SiLU(double[] inputs, int index)
     {

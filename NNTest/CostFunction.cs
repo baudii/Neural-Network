@@ -1,14 +1,24 @@
-﻿public readonly struct CostFunction
+﻿/// <summary>
+/// Provides various cost functions for evaluating the difference between predicted
+/// output and the expected output in machine learning models. The cost functions are
+/// implemented as readonly structs for efficient performance.
+/// </summary>
+public readonly struct CostFunction
 {
     public enum CostType
     {
-        MSE,
-        CrossEntropy,
-        MSLE,
-        MAPE
-    }
+        MSE, // Mean Squared Error (MSE)
+		CrossEntropy, // Cross-Entropy
+		MSLE, // Mean Squared Logarithmic Error (MSLE)
+		MAPE // Mean Absolute Percentage Error (MAPE)
+	}
 
-    public static ICostFunction GetCostFunction(CostType costType)
+	/// <summary>
+	/// Returns the corresponding cost function implementation based on the specified cost type.
+	/// </summary>
+	/// <param name="costType">The type of cost function to return.</param>
+	/// <returns>An instance of a class implementing ICostFunction.</returns>
+	public static ICostFunction GetCostFunction(CostType costType)
     {
         switch (costType)
         {
@@ -25,7 +35,7 @@
         }
     }
 
-    public readonly struct MAPE : ICostFunction
+	public readonly struct MAPE : ICostFunction
     {
         public double CalcCost(double[] output, double[] expected)
         {
@@ -104,10 +114,25 @@
         }
     }
 }
-
+/// <summary>
+/// Interface for cost functions, providing methods for calculating the cost and its derivative.
+/// </summary>
 public interface ICostFunction
-{
+{ 
+    /// <summary>
+    /// Calculates the cost between the predicted output and the expected output.
+    /// </summary>
+    /// <param name="output">The predicted output values.</param>
+    /// <param name="expected">The expected output values.</param>
+    /// <returns>The calculated cost.</returns>
     public double CalcCost(double[] output, double[] expected);
 
-    public double CalcDerivative(double[] output, double[] expected, int index);
+	/// <summary>
+	/// Calculates the derivative of the cost function for a specific index.
+	/// </summary>
+	/// <param name="output">The predicted output values.</param>
+	/// <param name="expected">The expected output values.</param>
+	/// <param name="index">The index for which to calculate the derivative.</param>
+	/// <returns>The derivative of the cost function at the given index.</returns>
+	public double CalcDerivative(double[] output, double[] expected, int index);
 }
