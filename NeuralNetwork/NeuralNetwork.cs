@@ -141,37 +141,6 @@ namespace KKNeuralNetwork
             return layerLearnDatas;
         }
 
-        /* - OLD
-        
-        void BackPass(double[] output, double[] expected, LearnData learnData)
-        {
-            var last = layers.Count - 1;
-            for (int i = 0; i < layers[last].nodesOut; i++)
-            {
-
-                var costDeriv = costFunction.CalcDerivative(output, expected, i);
-                var activationDeriv = layers[last].activation.Derivative(layers[last].z, i);
-                var result = activationDeriv * costDeriv;
-
-                //CrossEntropy + Softmax
-                //var result = layers[last].a[i];
-                //if (expected[i] == 1)
-                //    result -= 1;
-
-                layers[last].derivMemo[i] = result;
-            }
-            UpdateGradients(layers[last], layers[last - 1].a, derivMemo);
-
-            for (int i = last - 1; i >= 0; i--)
-            {
-                CalculateDerivMemo(layers[i], layers[i + 1]);
-                if (i == 0)
-                    UpdateGradients(layers[i], initialInputs, derivMemo);
-                else
-                    UpdateGradients(layers[i], layers[i - 1].a, derivMemo);
-            }
-        }*/
-
         /// <summary>
         /// Uses the layer data from forward pass to perform backwards propagation and cache adjustments
         /// </summary>
@@ -272,8 +241,8 @@ namespace KKNeuralNetwork
 						Console.WriteLine("----- Neural Network Training Log -----");
 						Console.WriteLine($"Average Cost: {overallCost / iterationsElapsed:F4}");
 						Console.WriteLine($"Initial Input: {initialInputs[0]:F4}");
-						Console.WriteLine($"Output (scaled): {output * 40:F4}");
-						Console.WriteLine($"Expected (scaled): {expected * 40:F4}");
+						Console.WriteLine($"Output (scaled): {output:F4}");
+						Console.WriteLine($"Expected (scaled): {expected:F4}");
 						Console.WriteLine("------ End of Log ------\n");
 
 						overallCost = 0;
