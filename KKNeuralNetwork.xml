@@ -1,0 +1,262 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>KKNeuralNetwork</name>
+    </assembly>
+    <members>
+        <member name="T:KKNeuralNetwork.HyperParameters">
+            <summary>
+            Class representing hyperparameters for training a neural network.
+            These parameters are crucial for controlling the training process and can significantly impact performance.
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.HyperParameters.#ctor(System.Double,System.Double,System.Int32,System.Double,System.Double)">
+            <summary>
+            Initializes a new instance of the <see cref="T:KKNeuralNetwork.HyperParameters"/> class with specified or default values.
+            </summary>
+            <param name="initialLearnRate">Initial learning rate (default is 0.01).</param>
+            <param name="learnRateDecay">Learning rate decay factor (default is 0.001).</param>
+            <param name="batchSize">Batch size for training (default is 32).</param>
+            <param name="momentum">Momentum factor (default is 0.9).</param>
+            <param name="regularization">Regularization term (default is 0.1).</param>
+        </member>
+        <member name="T:KKNeuralNetwork.LayerLearnData">
+             <summary>
+             The LayerLearnData class is designed to store intermediate results during 
+             the forward and backward passes through a neural network layer. This data 
+             can be processed in parallel to optimize calculations.
+            
+             Key features:
+             - Stores the raw outputs (z), which are the weighted sums of the inputs plus biases.
+             - Stores the activated outputs (a), which are the final outputs after applying the activation function.
+             - Stores derivative-related data (derivMemo), used during backpropagation to hold gradients or intermediate calculations.
+            
+             This class is particularly useful for holding data that is necessary for both the forward pass (e.g., storing outputs)
+             and the backward pass (e.g., storing derivatives for backpropagation). By keeping these values in a separate object, 
+             the neural network's layer can perform operations in parallel or asynchronously, improving performance and scalability.
+             </summary>
+        </member>
+        <member name="T:KKNeuralNetwork.TrainingData">
+            <summary>
+            Data container for input and expected output. Used for Neural Network training.
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.TrainingData.#ctor">
+            <summary>
+            NOTE: Default contructor creates empty arrays!
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.TrainingData.#ctor(System.Double[],System.Double[])">
+            <param name="data">Contains array of inputs. Should be same size as the input layer of neural network.</param>
+            <param name="expected">Contains array of expected outputs. Should be same size as the output layer of neural network.</param>
+        </member>
+        <member name="T:KKNeuralNetwork.Activation">
+            <summary>
+            Provides various activation functions commonly used in neural networks. 
+            The functions are implemented as readonly structs for efficient performance.
+            </summary>
+        </member>
+        <member name="T:KKNeuralNetwork.Activation.ActivationType">
+            <summary>
+            Enum representing different types of activation functions.
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.Activation.GetActivation(KKNeuralNetwork.Activation.ActivationType)">
+            <summary>
+            Returns the corresponding activation function implementation based on the specified activation type.
+            </summary>
+            <param name="type">The type of activation function to return.</param>
+            <returns>An instance of a class implementing IActivation.</returns>
+        </member>
+        <member name="T:KKNeuralNetwork.CostFunction">
+            <summary>
+            Provides various cost functions for evaluating the difference between predicted
+            output and the expected output in machine learning models. The cost functions are
+            implemented as readonly structs for efficient performance.
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.CostFunction.GetCostFunction(KKNeuralNetwork.CostFunction.CostType)">
+            <summary>
+            Returns the corresponding cost function implementation based on the specified cost type.
+            </summary>
+            <param name="costType">The type of cost function to return.</param>
+            <returns>An instance of a class implementing ICostFunction.</returns>
+        </member>
+        <member name="T:KKNeuralNetwork.IActivation">
+            <summary>
+            Interface representing an activation function in a neural network.
+            Classes implementing this interface must provide methods for activation and derivative calculations.
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.IActivation.Activate(System.Double[],System.Int32)">
+            <summary>
+            Activates the input value based on the specific activation function implementation.
+            </summary>
+            <param name="z">An array of input values to activate.</param>
+            <param name="index">The index of the value to activate.</param>
+            <returns>The activated value at the specified index.</returns>
+        </member>
+        <member name="M:KKNeuralNetwork.IActivation.Derivative(System.Double[],System.Int32)">
+            <summary>
+            Calculates the derivative of the activation function at the specified index for backpropagation.
+            </summary>
+            <param name="a">An array of activated values (outputs) from the previous layer.</param>
+            <param name="index">The index of the value for which to calculate the derivative.</param>
+            <returns>The derivative of the activation function at the specified index.</returns>
+        </member>
+        <member name="M:KKNeuralNetwork.IActivation.GetActivationType">
+            <summary>
+            Gets the type of activation function implemented by this instance.
+            </summary>
+            <returns>The corresponding activation type from the Activation.ActivationType enumeration.</returns>
+        </member>
+        <member name="T:KKNeuralNetwork.ICostFunction">
+            <summary>
+            Interface for cost functions, providing methods for calculating the cost and its derivative.
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.ICostFunction.CalcCost(System.Double[],System.Double[])">
+            <summary>
+            Calculates the cost between the predicted output and the expected output.
+            </summary>
+            <param name="output">The predicted output values.</param>
+            <param name="expected">The expected output values.</param>
+            <returns>The calculated cost.</returns>
+        </member>
+        <member name="M:KKNeuralNetwork.ICostFunction.CalcDerivative(System.Double[],System.Double[],System.Int32)">
+            <summary>
+            Calculates the derivative of the cost function for a specific index.
+            </summary>
+            <param name="output">The predicted output values.</param>
+            <param name="expected">The expected output values.</param>
+            <param name="index">The index for which to calculate the derivative.</param>
+            <returns>The derivative of the cost function at the given index.</returns>
+        </member>
+        <member name="T:KKNeuralNetwork.Layer">
+             <summary>
+             The Layer class represents a single layer in a neural network, containing nodes (neurons), 
+             weights connecting this layer to the previous one, and biases for each node. It supports 
+             initializing weights, applying forward passes (computing the layer's output given inputs), 
+             and adjusting weights and biases based on backpropagation results.
+            
+             Key features:
+             - Holds the weight matrix (w) and bias vector (b) for connections to the previous layer.
+             - Supports random initialization of weights, with an option to use Gaussian distribution.
+             - Allows for computation of the weighted sum (z) and application of an activation function 
+               to get the final output (a) during the forward pass.
+             - Provides methods to print the current weights and biases for debugging purposes.
+             - Updates weights and biases based on gradient adjustments calculated during training, 
+               using the AdjustParameters method, which applies the learning rate.
+             - Optionally supports advanced optimization techniques through weight and bias velocities.
+            
+             The class is designed to be part of a fully connected feedforward neural network and interacts 
+             with other classes such as IActivation for applying activation functions and LayerLearnData 
+             for storing intermediate computation results.
+             </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.Layer.PrintWeights">
+            <summary>
+            Prints all weights and biases to the console for debugging purposes.
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.Layer.RandomizeWeights(System.Boolean)">
+            <summary>
+            Fills Layer.w array with random values in range (0,1]
+            </summary>
+            <param name="IsGaussian">If true, will use Gaussian normal distribution.</param>
+        </member>
+        <member name="M:KKNeuralNetwork.Layer.ForwardPass(System.Double[])">
+            <summary>
+            Passes given input through every node of this layer. 
+            Creates LayerLearnData object and fills:
+            LayerLearnData.z (output after multiplying with weights and adding bias)
+            LayerLearnData.a (output after activation funcction applied)
+            </summary>
+            <param name="input">Size of this array must equal nodesIn of this layer</param>
+            <returns>LayerLearnData object</returns>
+        </member>
+        <member name="M:KKNeuralNetwork.Layer.AdjustParameters(System.Double)">
+            <summary>
+            Updates the weights and biases based on the adjustments calculated during backpropagation.
+            </summary>
+            <param name="learnRate">The learning rate to apply for weight updates.</param>
+        </member>
+        <member name="T:KKNeuralNetwork.NeuralNetwork">
+            <summary>
+            The NeuralNetwork class represents an implementation of an artificial neural network with the ability to create layers, 
+            select activation functions, and use various loss functions. 
+            It includes methods for training the network on individual examples, batches of data, and large datasets using mini-batches. 
+            Support is provided for both forward propagation and backpropagation, as well as logging the training process. 
+            There is also functionality to save and load network weights for future use.
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.#ctor(System.Int32,KKNeuralNetwork.CostFunction.CostType)">
+            <summary>
+            Create neural network
+            </summary>
+            <param name="inputNodesCount">Number of input nodes</param>
+            <param name="hyperParameters">Hyper parameters</param>
+            <param name="costFunctionType">Select cost function from CostFunction.CostType enum</param>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.AddLayers(KKNeuralNetwork.Activation.ActivationType,System.Int32[])">
+            <summary>
+            Function you call after you created an object of type NeuralNetwork. You can have combination of different layers and activation functions
+            </summary>
+            <param name="activationType">Select activation function from Activation.ActivationType enum</param>
+            <param name="sizes">Chose consequtive numbers of nodes (N). Each number represents a new layer with N amount of nodes</param>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.Calculate(System.Double[])">
+            <summary>
+            Calculates an output with preset parameters. Used for trained Neural Network to simply get an answer
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.Learn(KKNeuralNetwork.TrainingData,System.Double)">
+            <summary>
+            Use this function to train neural network on a single InputData
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.Learn(KKNeuralNetwork.TrainingData[],System.Double)">
+            <summary>
+            Use this function to train neural network on a single batch of InputData. Batch can be of any size. <br /><br />
+            <b>NOTE:</b> Every item of a batch is trained independently with average adjustments. 
+            </summary>
+            <param name="batch">Array of a TraningData</param>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.Learn(KKNeuralNetwork.TrainingData[],System.Int32,System.Double)">
+            <summary>
+            Use this function to train neural network on a big dataset. Items in dataset will be split into batches of given size and for each batch "Learn" function will be called.
+            </summary>
+            <param name="dataset">Array of a TraningData</param>
+            <param name="batchSize">Size of batch that dataSet will be split into</param>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.ForwardPass(KKNeuralNetwork.TrainingData)">
+            <summary>
+            Performs forward pass operation
+            </summary>
+            <returns>A list calculated data for every layer</returns>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.BackPass(System.Collections.Generic.List{KKNeuralNetwork.LayerLearnData},KKNeuralNetwork.TrainingData)">
+            <summary>
+            Uses the layer data from forward pass to perform backwards propagation and cache adjustments
+            </summary>
+            <param name="layerLearnDatas">Result of the ForwardPass</param>
+            <param name="inputData">Input item that was used in respective ForwardPass method</param>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.CalculateDerivMemoOutput(KKNeuralNetwork.Layer,KKNeuralNetwork.LayerLearnData,System.Double[])">
+            <summary>
+            Calculate derivative of the Output layer. 
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.CalculateDerivMemoHidden(KKNeuralNetwork.Layer,KKNeuralNetwork.LayerLearnData,System.Double[0:,0:],System.Double[])">
+            <summary>
+            Calculate derivative of a Hidden layer.
+            </summary>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.CacheAdjustments(KKNeuralNetwork.Layer,System.Double[],System.Double[])">
+            <summary>
+            Perform calculted adjustments. <br />
+            <b>NOTE:</b> This method only caches the adjustments. Call Layer.AdjustParameters to apply the changes.
+            </summary>
+        </member>
+    </members>
+</doc>
