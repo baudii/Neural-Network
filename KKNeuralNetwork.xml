@@ -60,6 +60,11 @@
             <param name="data">Contains array of inputs. Should be same size as the input layer of neural network.</param>
             <param name="expected">Contains array of expected outputs. Should be same size as the output layer of neural network.</param>
         </member>
+        <member name="T:KKNeuralNetwork.FullyConnectedLayer">
+            The class is designed to be part of a fully connected feedforward neural network and interacts 
+            with other classes such as IActivation for applying activation functions and LayerLearnData 
+            for storing intermediate computation results.
+        </member>
         <member name="T:KKNeuralNetwork.Activation">
             <summary>
             Provides various activation functions commonly used in neural networks. 
@@ -158,11 +163,17 @@
              - Updates weights and biases based on gradient adjustments calculated during training, 
                using the AdjustParameters method, which applies the learning rate.
              - Optionally supports advanced optimization techniques through weight and bias velocities.
-            
-             The class is designed to be part of a fully connected feedforward neural network and interacts 
-             with other classes such as IActivation for applying activation functions and LayerLearnData 
-             for storing intermediate computation results.
              </summary>
+        </member>
+        <member name="T:KKNeuralNetwork.Layer.LayerType">
+            <summary>
+            Layer type. Choice will affect the way the data is passed through the network. For more information read about different layer types.
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.Layer.LayerType.FullyConnected">
+            <summary>
+            Layer that connects every single own node with every single node of the previous layer
+            </summary>
         </member>
         <member name="M:KKNeuralNetwork.Layer.PrintWeights">
             <summary>
@@ -205,13 +216,13 @@
             Create neural network
             </summary>
             <param name="inputNodesCount">Number of input nodes</param>
-            <param name="hyperParameters">Hyper parameters</param>
             <param name="costFunctionType">Select cost function from CostFunction.CostType enum</param>
         </member>
-        <member name="M:KKNeuralNetwork.NeuralNetwork.AddLayers(KKNeuralNetwork.Activation.ActivationType,System.Int32[])">
+        <member name="M:KKNeuralNetwork.NeuralNetwork.AddLayers(KKNeuralNetwork.Layer.LayerType,KKNeuralNetwork.Activation.ActivationType,System.Int32[])">
             <summary>
             Function you call after you created an object of type NeuralNetwork. You can have combination of different layers and activation functions
             </summary>
+            <param name="layerType">Type of layer. Currently only one presented</param>
             <param name="activationType">Select activation function from Activation.ActivationType enum</param>
             <param name="sizes">Chose consequtive numbers of nodes (N). Each number represents a new layer with N amount of nodes</param>
         </member>
