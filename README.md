@@ -59,59 +59,64 @@ using KKNeuralNetwork;
 
 internal class Program
 {
-    static string path = "YOUR_PATH_HERE";
-    static string fileName = "XOR_Relu_2_4_4_1_MSLE.txt";
-    static NeuralNetwork nn;
+	static string path = "YOUR_PATH_HERE";
+	static string fileName = "XOR_Relu_2_4_4_1_MSLE.txt";
+	static NeuralNetwork nn;
+	static void Main(string[] args)
+	{
+		CreateNeuralNetworkXOR();
+		XOR_Train();
+		XOR_Test();
+	}
 
-    static void Main(string[] args)
-    {
-        CreateNeuralNetworkXOR();
-        XOR_Train();
-        XOR_Test();
-    }
+	static void CreateNeuralNetworkXOR()
+	{
+		nn = new NeuralNetwork(2, CostFunction.CostType.MSLE);
 
-    static void CreateNeuralNetworkXOR()
-    {
-        nn = new NeuralNetwork(2, CostFunction.CostType.MSLE);
-        nn.AddLayers(Activation.ActivationType.ReLU, 4, 4);
-        nn.AddLayers(Activation.ActivationType.Linear, 1);
-        nn.LoadWeights(path + fileName);
-    }
+		nn.AddLayers(Layer.LayerType.FullyConnected, Activation.ActivationType.ReLU, 4, 4);
+		nn.AddLayers(Layer.LayerType.FullyConnected, Activation.ActivationType.Linear, 1);
 
-    static void XOR_Train()
-    {
-        Random rand = new Random();
-        int dataSetSize = 3000;
+		nn.LoadWeights(path + fileName);
+	}
 
-        for (int i = 0; i < 10000; i++)
-        {
-            TrainingData[] dataSet = new TrainingData[dataSetSize];
-            for (int j = 0; j < dataSetSize; j++)
-            {
-                int x = (int)Math.Round(rand.NextDouble());
-                int y = (int)Math.Round(rand.NextDouble());
-                var input = new TrainingData(new double[] { x, y }, new double[] { x ^ y });
-                dataSet[j] = input;
-            }
-            nn.Learn(dataSet, 0.001);
-        }
-        nn.SaveWeights(path + fileName);
-    }
+	static void XOR_Train()
+	{
+		Random rand = new Random();
+		int dataSetSize = 3000;
 
-    static void XOR_Test()
-    {
-        string a_read = Console.ReadLine();
-        string b_read = Console.ReadLine();
-        if (!int.TryParse(a_read, out int a) || !int.TryParse(b_read, out int b))
-        {
-            Console.WriteLine("Couldn't parse input");
-        }
-        else
-        {
-            double[] result = nn.Calculate(new double[] { a, b });
-            Console.WriteLine(result[0]);
-        }
-    }
+		for (int i = 0; i < 10000; i++)
+		{
+			TrainingData[] dataSet = new TrainingData[dataSetSize];
+			for (int j = 0; j < dataSetSize; j++)
+			{
+				int x = (int)Math.Round(rand.NextDouble());
+				int y = (int)Math.Round(rand.NextDouble());
+				var input = new TrainingData(new double[] { x, y }, new double[] { x ^ y });
+				dataSet[j] = input;
+			}
+
+			nn.Learn(dataSet, 0.001);
+
+		}
+
+		nn.SaveWeights(path + fileName);
+	}
+
+	static void XOR_Test()
+	{
+		string a_read = Console.ReadLine();
+		string b_read = Console.ReadLine();
+
+		if (!int.TryParse(a_read, out int a) || !int.TryParse(b_read, out int b))
+		{
+			Console.WriteLine("Couldn't parse input");
+		}
+		else
+		{
+			double[] result = nn.Calculate(new double[] { a, b });
+			Console.WriteLine(result[0]);
+		}
+	}
 }
 ```
 #### Explanation:

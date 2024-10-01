@@ -25,7 +25,6 @@ namespace KKNeuralNetwork
         /// Create neural network
         /// </summary>
         /// <param name="inputNodesCount">Number of input nodes</param>
-        /// <param name="hyperParameters">Hyper parameters</param>
         /// <param name="costFunctionType">Select cost function from CostFunction.CostType enum</param>
         public NeuralNetwork(int inputNodesCount, CostFunction.CostType costFunctionType = CostFunction.CostType.MSE)
         {
@@ -37,27 +36,35 @@ namespace KKNeuralNetwork
             timer.Start();
         }
 
-        /// <summary>
-        /// Function you call after you created an object of type NeuralNetwork. You can have combination of different layers and activation functions
-        /// </summary>
-        /// <param name="activationType">Select activation function from Activation.ActivationType enum</param>
-        /// <param name="sizes">Chose consequtive numbers of nodes (N). Each number represents a new layer with N amount of nodes</param>
-        public void AddLayers(Activation.ActivationType activationType, params int[] sizes)
+		/// <summary>
+		/// Function you call after you created an object of type NeuralNetwork. You can have combination of different layers and activation functions
+		/// </summary>
+		/// <param name="layerType">Type of layer. Currently only one presented</param>
+		/// <param name="activationType">Select activation function from Activation.ActivationType enum</param>
+		/// <param name="sizes">Chose consequtive numbers of nodes (N). Each number represents a new layer with N amount of nodes</param>
+		public void AddLayers(Layer.LayerType layerType, Activation.ActivationType activationType, params int[] sizes)
         {
             for (int i = 0; i < sizes.Length; i++)
             {
-                var layer = new Layer(GetNodesIn(), sizes[i]);
-                layer.activation = Activation.GetActivation(activationType);
-                layers.Add(layer);
-            }
+                Layer layer;
+				switch (layerType)
+				{
+					case Layer.LayerType.FullyConnected:
+                        layer = new FullyConnectedLayer(GetNodesIn(), sizes[i], activationType);
+						break;
+                    default:
+                        throw new ArgumentException("Unknown layer type!");
+				}
+				layers.Add(layer);
+			}
 
-            int GetNodesIn() => layers.Count == 0 ? inputNodesCount: layers.Last().nodesOut;
-        }
+			int GetNodesIn() => layers.Count == 0 ? inputNodesCount: layers.Last().nodesOut;
+		}
 
-        /// <summary>
-        /// Calculates an output with preset parameters. Used for trained Neural Network to simply get an answer
-        /// </summary>
-        public double[] Calculate(double[] input)
+		/// <summary>
+		/// Calculates an output with preset parameters. Used for trained Neural Network to simply get an answer
+		/// </summary>
+		public double[] Calculate(double[] input)
         {
             foreach (var layer in layers)
             {
