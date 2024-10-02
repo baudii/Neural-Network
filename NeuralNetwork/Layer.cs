@@ -19,18 +19,18 @@ namespace KKNeuralNetwork
 	/// </summary>
 	public abstract class Layer
 	{
-		public double[,] w;
-		public double[] b;
-		public int nodesOut;
-		public int nodesIn;
-
-		public double[,] adjustW;
-		public double[] adjustB;
-
-		public double[,] wVelocities;
-		public double[] bVelocities;
-
-		public IActivation activation;
+		internal double[,] w;
+		internal double[] b;
+		internal int nodesOut;
+		internal int nodesIn;
+		
+		internal double[,] adjustW;
+		internal double[] adjustB;
+		
+		internal double[,] wVelocities;
+		internal double[] bVelocities;
+		
+		internal IActivation activation;
 
 		/// <summary>
 		/// Layer type. Choice will affect the way the data is passed through the network. For more information read about different layer types.
@@ -43,7 +43,7 @@ namespace KKNeuralNetwork
 			FullyConnected
 		}
 
-		public Layer(int nodesIn, int nodesOut, Activation.ActivationType activationType = Activation.ActivationType.Linear)
+		internal Layer(int nodesIn, int nodesOut, Activation.ActivationType activationType = Activation.ActivationType.Linear)
 		{
 			this.nodesOut = nodesOut;
 			this.nodesIn = nodesIn;

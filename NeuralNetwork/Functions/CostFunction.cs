@@ -76,9 +76,9 @@
             }
         }
 
-        public readonly struct MSE : ICostFunction
+		public readonly struct MSE : ICostFunction
         {
-            public double CalcCost(double[] output, double[] expected)
+			public double CalcCost(double[] output, double[] expected)
             {
                 double error = 0;
                 for (int i = 0; i < output.Length; i++)
@@ -88,15 +88,15 @@
                 return error / output.Length;
             }
 
-            public double CalcDerivative(double[] output, double[] expected, int index)
+			public double CalcDerivative(double[] output, double[] expected, int index)
             {
                 return 2 * (output[index] - expected[index]) / output.Length;
             }
         }
 
-        public readonly struct CrossEntropy : ICostFunction
+		public readonly struct CrossEntropy : ICostFunction
         {
-            public double CalcCost(double[] output, double[] expected)
+			public double CalcCost(double[] output, double[] expected)
             {
                 for (int i = 0; i < expected.Length; i++)
                 {
@@ -108,7 +108,7 @@
                 return 1;
             }
 
-            public double CalcDerivative(double[] output, double[] expected, int index)
+			public double CalcDerivative(double[] output, double[] expected, int index)
             {
                 if (expected[index] == 0)
                     return 1;
