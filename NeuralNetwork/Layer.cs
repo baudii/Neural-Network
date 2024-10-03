@@ -24,13 +24,13 @@ namespace KKNeuralNetwork
 		internal double[] b;
 		internal int nodesOut;
 		internal int nodesIn;
-		
+
 		internal double[,] adjustW;
 		internal double[] adjustB;
-		
+
 		internal double[,] wVelocities;
 		internal double[] bVelocities;
-		
+
 		internal IActivation activation;
 
 		/// <summary>
