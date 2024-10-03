@@ -18,7 +18,7 @@ namespace KKNeuralNetwork
 	///   using the AdjustParameters method, which applies the learning rate.
 	/// - Optionally supports advanced optimization techniques through weight and bias velocities.
 	/// </summary>
-	public abstract class Layer
+	internal abstract class Layer
 	{
 		internal double[,] w;
 		internal double[] b;
@@ -33,16 +33,6 @@ namespace KKNeuralNetwork
 
 		internal IActivation activation;
 
-		/// <summary>
-		/// Layer type. Choice will affect the way the data is passed through the network. For more information read about different layer types.
-		/// </summary>
-		public enum LayerType
-		{
-			/// <summary>
-			/// Layer that connects every single own node with every single node of the previous layer
-			/// </summary>
-			FullyConnected
-		}
 
 		internal Layer(int nodesIn, int nodesOut, Activation.ActivationType activationType = Activation.ActivationType.Linear)
 		{
@@ -66,7 +56,7 @@ namespace KKNeuralNetwork
 		/// <summary>
 		/// Prints all weights and biases to the console for debugging purposes.
 		/// </summary>
-		public void PrintWeights()
+		internal void PrintWeights()
 		{
 			Console.WriteLine("Weights:");
 			for (int i = 0; i < nodesOut; i++)
@@ -87,7 +77,7 @@ namespace KKNeuralNetwork
 		/// Fills Layer.w array with random values in range (0,1]
 		/// </summary>
 		/// <param name="IsGaussian">If true, will use Gaussian normal distribution.</param>
-		public void RandomizeWeights(bool IsGaussian)
+		internal void RandomizeWeights(bool IsGaussian)
 		{
 			var rand = new Random();
 			for (int i = 0; i < nodesOut; i++)
@@ -112,13 +102,12 @@ namespace KKNeuralNetwork
 		/// </summary>
 		/// <param name="input">Size of this array must equal nodesIn of this layer</param>
 		/// <returns>LayerLearnData object</returns>
-		public abstract LayerLearnData ForwardPass(double[] input);
-
+		internal abstract LayerLearnData ForwardPass(double[] input);
 
 		/// <summary>
 		/// Updates the weights and biases based on the adjustments calculated during backpropagation.
 		/// </summary>
 		/// <param name="learnRate">The learning rate to apply for weight updates.</param>
-		public abstract void AdjustParameters(double learnRate);
+		internal abstract void AdjustParameters(double learnRate);
 	}
 }

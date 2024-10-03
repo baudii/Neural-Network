@@ -4,13 +4,13 @@ namespace KKNeuralNetwork
 	/// The class is designed to be part of a fully connected feedforward neural network and interacts 
 	/// with other classes such as IActivation for applying activation functions and LayerLearnData 
 	/// for storing intermediate computation results.
-	public class FullyConnectedLayer : Layer
+	internal class FullyConnectedLayer : Layer
 	{
 		internal FullyConnectedLayer(int nodesIn, int nodesOut, Activation.ActivationType activationType = Activation.ActivationType.Linear) : base(nodesIn, nodesOut, activationType)
 		{
 		}
 
-		public override LayerLearnData ForwardPass(double[] input)
+		internal override LayerLearnData ForwardPass(double[] input)
 		{
 			var currentLayerLearnData = new LayerLearnData(nodesOut);
 			for (int i = 0; i < nodesOut; i++)
@@ -25,7 +25,7 @@ namespace KKNeuralNetwork
 			return currentLayerLearnData;
 		}
 
-		public override void AdjustParameters(double learnRate)
+		internal override void AdjustParameters(double learnRate)
 		{
 			for (int i = 0; i < nodesOut; i++)
 			{

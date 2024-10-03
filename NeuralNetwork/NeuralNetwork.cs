@@ -17,6 +17,16 @@ namespace KKNeuralNetwork
 	/// </summary>
 	public class NeuralNetwork
 	{
+		/// <summary>
+		/// Layer type. Choice will affect the way the data is passed through the network. For more information read about different layer types.
+		/// </summary>
+		public enum LayerType
+		{
+			/// <summary>
+			/// Layer that connects every single own node with every single node of the previous layer
+			/// </summary>
+			FullyConnected
+		}
 		List<Layer> layers;
 		int inputNodesCount;
 		ICostFunction costFunction;
@@ -48,14 +58,14 @@ namespace KKNeuralNetwork
 		/// <param name="layerType">Type of layer. Currently only one presented</param>
 		/// <param name="activationType">Select activation function from Activation.ActivationType enum</param>
 		/// <param name="sizes">Chose consequtive numbers of nodes (N). Each number represents a new layer with N amount of nodes</param>
-		public void AddLayers(Layer.LayerType layerType, Activation.ActivationType activationType, params int[] sizes)
+		public void AddLayers(LayerType layerType, Activation.ActivationType activationType, params int[] sizes)
 		{
 			for (int i = 0; i < sizes.Length; i++)
 			{
 				Layer layer;
 				switch (layerType)
 				{
-					case Layer.LayerType.FullyConnected:
+					case LayerType.FullyConnected:
 						layer = new FullyConnectedLayer(GetNodesIn(), sizes[i], activationType);
 						break;
 					default:
@@ -81,6 +91,7 @@ namespace KKNeuralNetwork
 			return input;
 		}
 
+		#region Learn Methods
 		/// <summary>
 		/// Use this function to train neural network on a single InputData
 		/// </summary>
@@ -128,6 +139,135 @@ namespace KKNeuralNetwork
 				Learn(miniBatch, learnRate);
 			}
 		}
+		#endregion
+
+		#region Save/Load
+		/// <summary>
+		/// Saves neural network state into the file at the path.
+		/// </summary>
+		/// <param name="path">Path to the file</param>
+		public void SaveWeights(string path)
+		{
+			try
+			{
+				if (!File.Exists(path))
+				{
+					var file = File.Create(path);
+					file.Close();
+					Console.WriteLine("File wasn't found at " + path + "\nCreating new instance.");
+				}
+
+				List<string> saveData = new List<string>();
+				string networkId = "I_" + layers.Count + "_" + inputNodesCount; // simple id of the network
+				for (int l = 0; l < layers.Count; l++)
+				{
+					networkId += "_" + layers[l].nodesOut + "_" + layers[l].nodesIn;
+				}
+				saveData.Add(networkId);
+				// example: I_3_1_8_1_8_8_1_8
+
+				for (int l = 0; l < layers.Count; l++)
+				{
+					for (int n = 0; n < layers[l].nodesOut; n++)
+					{
+						saveData.Add("b_" + l + "_" + n + "_" + layers[l].b[n] + "_" + layers[l].bVelocities[n]); // Bias for every node
+						for (int j = 0; j < layers[l].nodesIn; j++)
+						{
+							saveData.Add(l + "_" + n + "_" + j + "_" + layers[l].w[n, j] + "_" + layers[l].wVelocities[n, j]); // Weight for every node in
+						}
+					}
+				}
+				File.WriteAllLines(path, saveData);
+				Console.WriteLine("------ Successfully Saved ------");
+			}
+			catch (IOException ioEx)
+			{
+				Console.WriteLine("Saving failed: I/O error occurred while saving weights: " + ioEx.Message);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Saving failed: Unexpected error occurred while saving weights: " + ex.Message);
+			}
+		}
+
+		/// <summary>
+		/// Loads saved neural network state from file at path
+		/// </summary>
+		/// <param name="path">Path to the file</param>
+		/// <returns>True if data was sucessfully loaded. False otherwise</returns>
+		public bool LoadWeights(string path)
+		{
+			try
+			{
+				if (!File.Exists(path))
+				{
+					Console.WriteLine("Loading failed: File doesn't exist at path " + path);
+					return false;
+				}
+
+				var loadData = File.ReadAllLines(path);
+
+				foreach (string line in loadData)
+				{
+					int l, i, j;
+					var res = line.Split('_');
+
+					if (res[0] == "I")
+					{
+						if (inputNodesCount != int.Parse(res[2]) || layers.Count != int.Parse(res[1]))
+							return false;
+
+						int charIndex = 2;
+						for (int k = 0; k < layers.Count; k++)
+						{
+							charIndex++;
+							if (layers[k].nodesOut != int.Parse(res[charIndex]))
+								return false;
+							charIndex++;
+							if (layers[k].nodesIn != int.Parse(res[charIndex]))
+								return false;
+						}
+						continue;
+					}
+					if (res[0] == "b")
+					{
+						l = int.Parse(res[1]);
+						i = int.Parse(res[2]);
+						layers[l].b[i] = double.Parse(res[3]);
+						layers[l].bVelocities[i] = double.Parse(res[4]);
+						continue;
+					}
+
+					l = int.Parse(res[0]);
+					i = int.Parse(res[1]);
+					j = int.Parse(res[2]);
+
+					layers[l].w[i, j] = double.Parse(res[3]);
+					layers[l].wVelocities[i, j] = double.Parse(res[4]);
+				}
+				Console.WriteLine("------ Successfully Loaded ------");
+				return true;
+			}
+			catch (IOException ioEx)
+			{
+				Console.WriteLine("Loading failed: I/O error occurred while loading weights: " + ioEx.Message);
+				return false;
+			}
+			catch (FormatException formatEx)
+			{
+				Console.WriteLine("Loading failed: Data format error occurred while loading weights: " + formatEx.Message);
+				return false;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Loading failed: Unexpected error occurred while loading weights: " + ex.Message);
+				return false;
+			}
+		}
+
+		#endregion
+
+		#region Private
 
 		/// <summary>
 		/// Performs forward pass operation
@@ -268,130 +408,6 @@ namespace KKNeuralNetwork
 			{
 				// Handle unexpected errors in logging
 				Console.WriteLine("An error occurred during logging: " + ex.Message);
-			}
-		}
-
-		#region Save/Load
-		/// <summary>
-		/// Saves neural network state into the file at the path.
-		/// </summary>
-		/// <param name="path">Path to the file</param>
-		public void SaveWeights(string path)
-		{
-			try
-			{
-				if (!File.Exists(path))
-				{
-					var file = File.Create(path);
-					file.Close();
-					Console.WriteLine("File wasn't found at " + path + "\nCreating new instance.");
-				}
-
-				List<string> saveData = new List<string>();
-				string networkId = "I_" + layers.Count + "_" + inputNodesCount; // simple id of the network
-				for (int l = 0; l < layers.Count; l++)
-				{
-					networkId += "_" + layers[l].nodesOut + "_" + layers[l].nodesIn;
-				}
-				saveData.Add(networkId);
-				// example: I_3_1_8_1_8_8_1_8
-
-				for (int l = 0; l < layers.Count; l++)
-				{
-					for (int n = 0; n < layers[l].nodesOut; n++)
-					{
-						saveData.Add("b_" + l + "_" + n + "_" + layers[l].b[n] + "_" + layers[l].bVelocities[n]); // Bias for every node
-						for (int j = 0; j < layers[l].nodesIn; j++)
-						{
-							saveData.Add(l + "_" + n + "_" + j + "_" + layers[l].w[n, j] + "_" + layers[l].wVelocities[n, j]); // Weight for every node in
-						}
-					}
-				}
-				File.WriteAllLines(path, saveData);
-				Console.WriteLine("------ Successfully Saved ------");
-			}
-			catch (IOException ioEx)
-			{
-				Console.WriteLine("Saving failed: I/O error occurred while saving weights: " + ioEx.Message);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine("Saving failed: Unexpected error occurred while saving weights: " + ex.Message);
-			}
-		}
-
-		/// <summary>
-		/// Loads saved neural network state from file at path
-		/// </summary>
-		/// <param name="path">Path to the file</param>
-		/// <returns>True if data was sucessfully loaded. False otherwise</returns>
-		public bool LoadWeights(string path)
-		{
-			try
-			{
-				if (!File.Exists(path))
-				{
-					Console.WriteLine("Loading failed: File doesn't exist at path " + path);
-					return false;
-				}
-
-				var loadData = File.ReadAllLines(path);
-
-				foreach (string line in loadData)
-				{
-					int l, i, j;
-					var res = line.Split('_');
-
-					if (res[0] == "I")
-					{
-						if (inputNodesCount != int.Parse(res[2]) || layers.Count != int.Parse(res[1]))
-							return false;
-
-						int charIndex = 2;
-						for (int k = 0; k < layers.Count; k++)
-						{
-							charIndex++;
-							if (layers[k].nodesOut != int.Parse(res[charIndex]))
-								return false;
-							charIndex++;
-							if (layers[k].nodesIn != int.Parse(res[charIndex]))
-								return false;
-						}
-						continue;
-					}
-					if (res[0] == "b")
-					{
-						l = int.Parse(res[1]);
-						i = int.Parse(res[2]);
-						layers[l].b[i] = double.Parse(res[3]);
-						layers[l].bVelocities[i] = double.Parse(res[4]);
-						continue;
-					}
-
-					l = int.Parse(res[0]);
-					i = int.Parse(res[1]);
-					j = int.Parse(res[2]);
-
-					layers[l].w[i, j] = double.Parse(res[3]);
-					layers[l].wVelocities[i, j] = double.Parse(res[4]);
-				}
-				Console.WriteLine("------ Successfully Loaded ------");
-				return true;
-			}
-			catch (IOException ioEx)
-			{
-				Console.WriteLine("Loading failed: I/O error occurred while loading weights: " + ioEx.Message);
-				return false;
-			}
-			catch (FormatException formatEx)
-			{
-				Console.WriteLine("Loading failed: Data format error occurred while loading weights: " + formatEx.Message);
-				return false;
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine("Loading failed: Unexpected error occurred while loading weights: " + ex.Message);
-				return false;
 			}
 		}
 
