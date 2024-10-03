@@ -25,7 +25,7 @@ namespace KKNeuralNetwork
 			return currentLayerLearnData;
 		}
 
-		internal override void AdjustParameters(double learnRate)
+		internal override void ApplyChanges(double learnRate)
 		{
 			for (int i = 0; i < nodesOut; i++)
 			{

@@ -108,6 +108,6 @@ namespace KKNeuralNetwork
 		/// Updates the weights and biases based on the adjustments calculated during backpropagation.
 		/// </summary>
 		/// <param name="learnRate">The learning rate to apply for weight updates.</param>
-		internal abstract void AdjustParameters(double learnRate);
+		internal abstract void ApplyChanges(double learnRate);
 	}
 }

@@ -101,7 +101,7 @@ namespace KKNeuralNetwork
 			BackPass(learnData, input);
 
 			foreach (var layer in layers)
-				layer.AdjustParameters(learnRate);
+				layer.ApplyChanges(learnRate);
 		}
 
 		/// <summary>
@@ -119,7 +119,7 @@ namespace KKNeuralNetwork
 			});
 
 			foreach (var layer in layers)
-				layer.AdjustParameters(learnRate / batch.Length);
+				layer.ApplyChanges(learnRate / batch.Length);
 		}
 
 		/// <summary>
