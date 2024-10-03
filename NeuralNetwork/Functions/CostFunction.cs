@@ -1,4 +1,7 @@
-﻿namespace KKNeuralNetwork
+﻿using System;
+
+
+namespace KKNeuralNetwork
 {
     /// <summary>
     /// Provides various cost functions for evaluating the difference between predicted
