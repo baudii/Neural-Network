@@ -17,16 +17,6 @@ namespace KKNeuralNetwork
 	/// </summary>
 	public class NeuralNetwork
 	{
-		/// <summary>
-		/// Layer type. Choice will affect the way the data is passed through the network. For more information read about different layer types.
-		/// </summary>
-		public enum LayerType
-		{
-			/// <summary>
-			/// Layer that connects every single own node with every single node of the previous layer
-			/// </summary>
-			FullyConnected
-		}
 		List<Layer> layers;
 		int inputNodesCount;
 		ICostFunction costFunction;
@@ -55,22 +45,14 @@ namespace KKNeuralNetwork
 		/// <summary>
 		/// Function you call after you created an object of type NeuralNetwork. You can have combination of different layers and activation functions
 		/// </summary>
-		/// <param name="layerType">Type of layer. Currently only one presented</param>
 		/// <param name="activationType">Select activation function from Activation.ActivationType enum</param>
 		/// <param name="sizes">Chose consequtive numbers of nodes (N). Each number represents a new layer with N amount of nodes</param>
-		public void AddLayers(LayerType layerType, Activation.ActivationType activationType, params int[] sizes)
+		public void AddLayers<T>(Activation.ActivationType activationType, params int[] sizes) where T: Layer
 		{
 			for (int i = 0; i < sizes.Length; i++)
 			{
-				Layer layer;
-				switch (layerType)
-				{
-					case LayerType.FullyConnected:
-						layer = new FullyConnectedLayer(GetNodesIn(), sizes[i], activationType);
-						break;
-					default:
-						throw new ArgumentException("Unknown layer type!");
-				}
+				T layer = (T)Activator.CreateInstance(typeof(T), GetNodesIn(), sizes[i], activationType)!;
+
 				layers.Add(layer);
 			}
 
@@ -127,6 +109,7 @@ namespace KKNeuralNetwork
 		/// </summary>
 		/// <param name="dataset">Array of a TraningData</param>
 		/// <param name="batchSize">Size of batch that dataSet will be split into</param>
+		/// <param name="learnRate">The learning rate, which controls how much to adjust the model's weights with respect to the loss gradient.</param>
 		public void Learn(TrainingData[] dataset, int batchSize, double learnRate)
 		{
 			for (int i = 0; i < dataset.Length / batchSize + Math.Sign(dataset.Length % batchSize); i++) // doing 1 additional iteration if (batch.Length % batchSize) != 0

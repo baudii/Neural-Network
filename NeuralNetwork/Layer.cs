@@ -18,7 +18,7 @@ namespace KKNeuralNetwork
 	///   using the AdjustParameters method, which applies the learning rate.
 	/// - Optionally supports advanced optimization techniques through weight and bias velocities.
 	/// </summary>
-	internal abstract class Layer
+	public abstract class Layer
 	{
 		internal double[,] w;
 		internal double[] b;

@@ -14,13 +14,13 @@
 	/// and the backward pass (e.g., storing derivatives for backpropagation). By keeping these values in a separate object, 
 	/// the neural network's layer can perform operations in parallel or asynchronously, improving performance and scalability.
 	/// </summary>
-	public class LayerLearnData
+	internal class LayerLearnData
 	{
-		public double[] a;
-		public double[] z;
-		public double[] derivMemo;
+		internal double[] a; // activation function outputs A(Z)
+		internal double[] z; // Z = Σ [ (i,j) (weights[i,j] * prev_layer.a[i] + bias[i]) ]
+		internal double[] derivMemo; // Derivative memoization. Used for back propagation
 
-		public LayerLearnData(int nodesOut)
+		internal LayerLearnData(int nodesOut)
 		{
 			a = new double[nodesOut];
 			z = new double[nodesOut];

@@ -10,13 +10,41 @@ namespace KKNeuralNetwork
 	/// </summary>
 	public readonly struct CostFunction
 	{
+		/// <summary>
+		/// Defines the type of cost/loss function used to evaluate the performance of a model.
+		/// Cost functions measure the difference between predicted and actual values, 
+		/// guiding the optimization process during model training.
+		/// </summary>
 		public enum CostType
 		{
-			MSE, // Mean Squared Error (MSE)
-			CrossEntropy, // Cross-Entropy
-			MSLE, // Mean Squared Logarithmic Error (MSLE)
-			MAPE // Mean Absolute Percentage Error (MAPE)
+			/// <summary>
+			/// Mean Squared Error (MSE)
+			/// Measures the average of the squares of the errors between predicted and actual values.
+			/// Commonly used in regression tasks.
+			/// </summary>
+			MSE,
+
+			/// <summary>
+			/// Cross-Entropy
+			/// Used primarily in classification tasks.
+			/// It measures the difference between two probability distributions (predicted and true).
+			/// </summary>
+			CrossEntropy,
+
+			/// <summary>
+			/// Mean Squared Logarithmic Error (MSLE)
+			/// Similar to MSE, but takes the logarithm of the predicted and actual values, useful when you care more about relative differences.
+			/// </summary>
+			MSLE,
+
+			/// <summary>
+			/// Mean Absolute Percentage Error (MAPE)
+			/// Measures the percentage error between predicted and actual values.
+			/// Often used in regression problems for percentage-based evaluations.
+			/// </summary>
+			MAPE
 		}
+
 
 		/// <summary>
 		/// Returns the corresponding cost function implementation based on the specified cost type.
@@ -40,7 +68,7 @@ namespace KKNeuralNetwork
 			}
 		}
 
-		public readonly struct MAPE : ICostFunction
+		internal readonly struct MAPE : ICostFunction
 		{
 			public double CalcCost(double[] output, double[] expected)
 			{
@@ -61,7 +89,7 @@ namespace KKNeuralNetwork
 		}
 
 
-		public readonly struct MSLE : ICostFunction
+		internal readonly struct MSLE : ICostFunction
 		{
 			public double CalcCost(double[] output, double[] expected)
 			{
@@ -79,7 +107,7 @@ namespace KKNeuralNetwork
 			}
 		}
 
-		public readonly struct MSE : ICostFunction
+		internal readonly struct MSE : ICostFunction
 		{
 			public double CalcCost(double[] output, double[] expected)
 			{
@@ -97,7 +125,7 @@ namespace KKNeuralNetwork
 			}
 		}
 
-		public readonly struct CrossEntropy : ICostFunction
+		internal readonly struct CrossEntropy : ICostFunction
 		{
 			public double CalcCost(double[] output, double[] expected)
 			{

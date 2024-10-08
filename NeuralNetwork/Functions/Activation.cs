@@ -13,11 +13,47 @@ namespace KKNeuralNetwork
 		/// </summary>
 		public enum ActivationType
 		{
+			
+			/// <summary>
+			/// S(x) = 1 / (1 + e^-x)
+			/// Sigmoid activation function, commonly used in neural networks.
+			/// It maps input values to a range between 0 and 1.
+			/// </summary>
 			Sigmoid,
+
+			/// <summary>
+			/// Tanh(x) = (e^x - e^(-x)) / (e^x + e^(-x))
+			/// The hyperbolic tangent activation function, commonly used in neural networks.
+			/// It maps input values to a range between -1 and 1.
+			/// </summary>
 			TanH,
+
+			/// <summary>
+			/// ReLU(x) = MAX(0, x)
+			/// Rectified Linear Unit activation function, often used in deep learning models.
+			/// It outputs zero for negative values and passes positive values as is.
+			/// </summary>
 			ReLU,
+
+			/// <summary>
+			/// SiLU(x) = x / (1 + e^(-x))
+			/// Sigmoid-Weighted Linear Unit (also called Swish) activation function.
+			/// It is a smooth, non-linear function that retains small negative values, improving performance in some models.
+			/// </summary>
 			SiLU,
+
+			/// <summary>
+			/// Softmax(x) = e^x_i / Σ(e^x_i)
+			/// Softmax activation function, used in classification tasks, especially in the output layer of neural networks.
+			/// It converts raw output scores into probabilities that sum to 1.
+			/// </summary>
 			Softmax,
+
+			/// <summary>
+			/// Linear(x) = x
+			/// Linear activation function, typically used in regression tasks or as an output activation function for certain models.
+			/// It simply returns the input value without modification.
+			/// </summary>
 			Linear
 		}
 
@@ -26,7 +62,7 @@ namespace KKNeuralNetwork
 		/// </summary>
 		/// <param name="type">The type of activation function to return.</param>
 		/// <returns>An instance of a class implementing IActivation.</returns>
-		public static IActivation GetActivation(ActivationType type)
+		internal static IActivation GetActivation(ActivationType type)
 		{
 			switch (type)
 			{
@@ -49,7 +85,7 @@ namespace KKNeuralNetwork
 
 		// Implementation of Activation functions
 
-		public readonly struct Sigmoid : IActivation
+		internal readonly struct Sigmoid : IActivation
 		{
 			public double Activate(double[] z, int index)
 			{
@@ -67,7 +103,7 @@ namespace KKNeuralNetwork
 				return ActivationType.Sigmoid;
 			}
 		}
-		public readonly struct Linear : IActivation
+		internal readonly struct Linear : IActivation
 		{
 			public double Activate(double[] z, int index)
 			{
@@ -85,8 +121,8 @@ namespace KKNeuralNetwork
 			}
 		}
 
-
-		public readonly struct TanH : IActivation
+		
+		internal readonly struct TanH : IActivation
 		{
 			public double Activate(double[] z, int index)
 			{
@@ -111,7 +147,7 @@ namespace KKNeuralNetwork
 		}
 
 
-		public readonly struct ReLU : IActivation
+		internal readonly struct ReLU : IActivation
 		{
 			public double Activate(double[] z, int index)
 			{
@@ -129,7 +165,7 @@ namespace KKNeuralNetwork
 			}
 		}
 
-		public readonly struct SiLU : IActivation
+		internal readonly struct SiLU : IActivation
 		{
 			public double Activate(double[] z, int index)
 			{
@@ -149,7 +185,7 @@ namespace KKNeuralNetwork
 		}
 
 
-		public readonly struct Softmax : IActivation
+		internal readonly struct Softmax : IActivation
 		{
 			public double Activate(double[] z, int index)
 			{

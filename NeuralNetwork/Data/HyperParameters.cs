@@ -1,4 +1,6 @@
-﻿namespace KKNeuralNetwork
+﻿using System;
+
+namespace KKNeuralNetwork
 {
 	/// <summary>
 	/// Class representing hyperparameters for training a neural network.
@@ -6,11 +8,34 @@
 	/// </summary>
 	public class HyperParameters
 	{
-		public double initialLearnRate;
-		public double learnRateDecay;
-		public int batchSize;
-		public double momentum;
-		public double regularization;
+		/// <summary>
+		/// Starting learning rate
+		/// </summary>
+		public double InitialLearnRate;
+		/// <summary>
+		/// Rate of learning rate decay. Choose 1 if you don't need decay. Values are clamped between 1 and 255
+		/// </summary>
+		public double LearnRateDecay 
+		{
+			get => LearnRateDecay;
+			set
+			{
+				Math.Clamp(LearnRateDecay, 1, 255);
+			} 
+		}
+		/// <summary>
+		/// Size of the batch of the training data. Used for multithreading
+		/// </summary>
+		public int BatchSize;
+		/// <summary>
+		/// Gradient decsend momentum. Formula: (prev_x + cur_x) / 2
+		/// </summary>
+		public double Momentum;
+
+		/// <summary>
+		/// Regularization rate of the Neural Network
+		/// </summary>
+		public double Regularization;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="HyperParameters"/> class with specified or default values.
@@ -22,11 +47,11 @@
 		/// <param name="regularization">Regularization term (default is 0.1).</param>
 		public HyperParameters(double initialLearnRate = 0.01d, double learnRateDecay = 0.001d, int batchSize = 32, double momentum = 0.9d, double regularization = 0.1d)
 		{
-			this.initialLearnRate = initialLearnRate;
-			this.learnRateDecay = learnRateDecay;
-			this.batchSize = batchSize;
-			this.momentum = momentum;
-			this.regularization = regularization;
+			this.InitialLearnRate = initialLearnRate;
+			this.LearnRateDecay = learnRateDecay;
+			this.BatchSize = batchSize;
+			this.Momentum = momentum;
+			this.Regularization = regularization;
 		}
 	}
 }

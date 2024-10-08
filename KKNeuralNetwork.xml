@@ -10,6 +10,31 @@
             These parameters are crucial for controlling the training process and can significantly impact performance.
             </summary>
         </member>
+        <member name="F:KKNeuralNetwork.HyperParameters.InitialLearnRate">
+            <summary>
+            Starting learning rate
+            </summary>
+        </member>
+        <member name="P:KKNeuralNetwork.HyperParameters.LearnRateDecay">
+            <summary>
+            Rate of learning rate decay. Choose 1 if you don't need decay. Values are clamped between 1 and 255
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.HyperParameters.BatchSize">
+            <summary>
+            Size of the batch of the training data. Used for multithreading
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.HyperParameters.Momentum">
+            <summary>
+            Gradient decsend momentum. Formula: (prev_x + cur_x) / 2
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.HyperParameters.Regularization">
+            <summary>
+            Regularization rate of the Neural Network
+            </summary>
+        </member>
         <member name="M:KKNeuralNetwork.HyperParameters.#ctor(System.Double,System.Double,System.Int32,System.Double,System.Double)">
             <summary>
             Initializes a new instance of the <see cref="T:KKNeuralNetwork.HyperParameters"/> class with specified or default values.
@@ -76,6 +101,48 @@
             Enum representing different types of activation functions.
             </summary>
         </member>
+        <member name="F:KKNeuralNetwork.Activation.ActivationType.Sigmoid">
+            <summary>
+            S(x) = 1 / (1 + e^-x)
+            Sigmoid activation function, commonly used in neural networks.
+            It maps input values to a range between 0 and 1.
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.Activation.ActivationType.TanH">
+            <summary>
+            Tanh(x) = (e^x - e^(-x)) / (e^x + e^(-x))
+            The hyperbolic tangent activation function, commonly used in neural networks.
+            It maps input values to a range between -1 and 1.
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.Activation.ActivationType.ReLU">
+            <summary>
+            ReLU(x) = MAX(0, x)
+            Rectified Linear Unit activation function, often used in deep learning models.
+            It outputs zero for negative values and passes positive values as is.
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.Activation.ActivationType.SiLU">
+            <summary>
+            SiLU(x) = x / (1 + e^(-x))
+            Sigmoid-Weighted Linear Unit (also called Swish) activation function.
+            It is a smooth, non-linear function that retains small negative values, improving performance in some models.
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.Activation.ActivationType.Softmax">
+            <summary>
+            Softmax(x) = e^x_i / Σ(e^x_i)
+            Softmax activation function, used in classification tasks, especially in the output layer of neural networks.
+            It converts raw output scores into probabilities that sum to 1.
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.Activation.ActivationType.Linear">
+            <summary>
+            Linear(x) = x
+            Linear activation function, typically used in regression tasks or as an output activation function for certain models.
+            It simply returns the input value without modification.
+            </summary>
+        </member>
         <member name="M:KKNeuralNetwork.Activation.GetActivation(KKNeuralNetwork.Activation.ActivationType)">
             <summary>
             Returns the corresponding activation function implementation based on the specified activation type.
@@ -88,6 +155,40 @@
             Provides various cost functions for evaluating the difference between predicted
             output and the expected output in machine learning models. The cost functions are
             implemented as readonly structs for efficient performance.
+            </summary>
+        </member>
+        <member name="T:KKNeuralNetwork.CostFunction.CostType">
+            <summary>
+            Defines the type of cost/loss function used to evaluate the performance of a model.
+            Cost functions measure the difference between predicted and actual values, 
+            guiding the optimization process during model training.
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.CostFunction.CostType.MSE">
+            <summary>
+            Mean Squared Error (MSE)
+            Measures the average of the squares of the errors between predicted and actual values.
+            Commonly used in regression tasks.
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.CostFunction.CostType.CrossEntropy">
+            <summary>
+            Cross-Entropy
+            Used primarily in classification tasks.
+            It measures the difference between two probability distributions (predicted and true).
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.CostFunction.CostType.MSLE">
+            <summary>
+            Mean Squared Logarithmic Error (MSLE)
+            Similar to MSE, but takes the logarithm of the predicted and actual values, useful when you care more about relative differences.
+            </summary>
+        </member>
+        <member name="F:KKNeuralNetwork.CostFunction.CostType.MAPE">
+            <summary>
+            Mean Absolute Percentage Error (MAPE)
+            Measures the percentage error between predicted and actual values.
+            Often used in regression problems for percentage-based evaluations.
             </summary>
         </member>
         <member name="M:KKNeuralNetwork.CostFunction.GetCostFunction(KKNeuralNetwork.CostFunction.CostType)">
@@ -165,16 +266,6 @@
              - Optionally supports advanced optimization techniques through weight and bias velocities.
              </summary>
         </member>
-        <member name="T:KKNeuralNetwork.Layer.LayerType">
-            <summary>
-            Layer type. Choice will affect the way the data is passed through the network. For more information read about different layer types.
-            </summary>
-        </member>
-        <member name="F:KKNeuralNetwork.Layer.LayerType.FullyConnected">
-            <summary>
-            Layer that connects every single own node with every single node of the previous layer
-            </summary>
-        </member>
         <member name="M:KKNeuralNetwork.Layer.PrintWeights">
             <summary>
             Prints all weights and biases to the console for debugging purposes.
@@ -196,7 +287,7 @@
             <param name="input">Size of this array must equal nodesIn of this layer</param>
             <returns>LayerLearnData object</returns>
         </member>
-        <member name="M:KKNeuralNetwork.Layer.AdjustParameters(System.Double)">
+        <member name="M:KKNeuralNetwork.Layer.ApplyChanges(System.Double)">
             <summary>
             Updates the weights and biases based on the adjustments calculated during backpropagation.
             </summary>
@@ -218,11 +309,10 @@
             <param name="inputNodesCount">Number of input nodes</param>
             <param name="costFunctionType">Select cost function from CostFunction.CostType enum</param>
         </member>
-        <member name="M:KKNeuralNetwork.NeuralNetwork.AddLayers(KKNeuralNetwork.Layer.LayerType,KKNeuralNetwork.Activation.ActivationType,System.Int32[])">
+        <member name="M:KKNeuralNetwork.NeuralNetwork.AddLayers``1(KKNeuralNetwork.Activation.ActivationType,System.Int32[])">
             <summary>
             Function you call after you created an object of type NeuralNetwork. You can have combination of different layers and activation functions
             </summary>
-            <param name="layerType">Type of layer. Currently only one presented</param>
             <param name="activationType">Select activation function from Activation.ActivationType enum</param>
             <param name="sizes">Chose consequtive numbers of nodes (N). Each number represents a new layer with N amount of nodes</param>
         </member>
@@ -250,6 +340,20 @@
             </summary>
             <param name="dataset">Array of a TraningData</param>
             <param name="batchSize">Size of batch that dataSet will be split into</param>
+            <param name="learnRate">The learning rate, which controls how much to adjust the model's weights with respect to the loss gradient.</param>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.SaveWeights(System.String)">
+            <summary>
+            Saves neural network state into the file at the path.
+            </summary>
+            <param name="path">Path to the file</param>
+        </member>
+        <member name="M:KKNeuralNetwork.NeuralNetwork.LoadWeights(System.String)">
+            <summary>
+            Loads saved neural network state from file at path
+            </summary>
+            <param name="path">Path to the file</param>
+            <returns>True if data was sucessfully loaded. False otherwise</returns>
         </member>
         <member name="M:KKNeuralNetwork.NeuralNetwork.ForwardPass(KKNeuralNetwork.TrainingData)">
             <summary>
@@ -279,19 +383,6 @@
             Perform calculted adjustments. <br />
             <b>NOTE:</b> This method only caches the adjustments. Call Layer.AdjustParameters to apply the changes.
             </summary>
-        </member>
-        <member name="M:KKNeuralNetwork.NeuralNetwork.SaveWeights(System.String)">
-            <summary>
-            Saves neural network state into the file at the path.
-            </summary>
-            <param name="path">Path to the file</param>
-        </member>
-        <member name="M:KKNeuralNetwork.NeuralNetwork.LoadWeights(System.String)">
-            <summary>
-            Loads saved neural network state from file at path
-            </summary>
-            <param name="path">Path to the file</param>
-            <returns>True if data was sucessfully loaded. False otherwise</returns>
         </member>
     </members>
 </doc>
