@@ -6,7 +6,7 @@ namespace KKNeuralNetwork
 	/// for storing intermediate computation results.
 	public class FullyConnectedLayer : Layer
 	{
-		public FullyConnectedLayer(int nodesIn, int nodesOut, Activation.ActivationType activationType = Activation.ActivationType.Linear) : base(nodesIn, nodesOut, activationType)
+		internal FullyConnectedLayer(int nodesIn, int nodesOut, Activation.ActivationType activationType = Activation.ActivationType.Linear) : base(nodesIn, nodesOut, activationType)
 		{
 		}
 

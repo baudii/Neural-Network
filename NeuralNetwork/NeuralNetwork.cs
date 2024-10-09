@@ -312,15 +312,16 @@ namespace KKNeuralNetwork
 		{
 			for (int i = 0; i < outputLayer.nodesOut; i++)
 			{
-				double dCdA = costFunction.CalcDerivative(outputLayerLearnData.a, expected, i); // dC/dA
-				double dAdZ = outputLayer.activation.Derivative(outputLayerLearnData.z, i); // dA/dZ
-				/*CrossEntropy + Softmax:
+				double dCdA = costFunction.CalcDerivative(outputLayerLearnData.a, expected, i);
+				double dAdZ = outputLayer.activation.Derivative(outputLayerLearnData.z, i);
+
+				/* CrossEntropy + Softmax
                  var result = layers[last].a[i];
                  if (expected[i] == 1)
                     result -= 1;
                 */
 
-				outputLayerLearnData.derivMemo[i] = dCdA * dAdZ;
+				outputLayerLearnData.derivMemo[i] = dCdA * dAdZ; // dCdZ = dCdA * dAdZ
 			}
 		}
 
@@ -333,7 +334,7 @@ namespace KKNeuralNetwork
 		{
 			for (int i = 0; i < curLayer.nodesOut; i++)
 			{
-				double dCdA = 0; // dC/dA
+				double dCdA = 0;
 				for (int j = 0; j < rightLayerWeights.GetLength(0); j++) // rightLayerWeights.GetLength(0) = rightLayer.nodesOut (amount of nodes in NEXT layer)
 				{
 					dCdA += rightLayerWeights[j, i] * rightLayerDerivMemo[j];

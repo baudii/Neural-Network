@@ -16,8 +16,8 @@
 	/// </summary>
 	internal class LayerLearnData
 	{
-		internal double[] a; // activation function outputs A(Z)
-		internal double[] z; // Z = Σ [ (i,j) (weights[i,j] * prev_layer.a[i] + bias[i]) ]
+		internal double[] a; // activation function, output of A(Z)
+		internal double[] z; // Z = Σ [ (i,j) (w[i,j] * prev_layer.a[i] + b[i]) ]
 		internal double[] derivMemo; // Derivative memoization. Used for back propagation
 
 		internal LayerLearnData(int nodesOut)
