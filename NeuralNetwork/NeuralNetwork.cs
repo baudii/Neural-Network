@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KKNeuralNetwork.Data;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -20,12 +21,11 @@ namespace KKNeuralNetwork
 		List<Layer> layers;
 		int inputNodesCount;
 		ICostFunction costFunction;
-		double overallCost = 0;
 
-		// Debug variables
-		Stopwatch timer;
-		double logUpdateTime = 1f;
-		int iterationsElapsed = 0;
+		/// <summary>
+		/// Use this variable to get some info about the learning progress
+		/// </summary>
+		public ComposedData ComposedData;
 
 		/// <summary>
 		/// Create neural network
@@ -38,8 +38,7 @@ namespace KKNeuralNetwork
 
 			layers = new List<Layer>();
 			costFunction = CostFunction.GetCostFunction(costFunctionType);
-			timer = new Stopwatch();
-			timer.Start();
+			ComposedData = new ComposedData();
 		}
 
 		/// <summary>
@@ -273,7 +272,8 @@ namespace KKNeuralNetwork
 			}
 
 			var cost = costFunction.CalcCost(layerLearnDatas.Last().a, inputData.expected);
-			LogLearningState(cost, layerLearnDatas.Last().a[0], inputData.expected[0], initialInputs);
+			ComposedData.UpdateData(ref cost, ref initialInputs, ref inputData.expected, ref layerLearnDatas.Last().a);
+			//LogLearningState(cost, layerLearnDatas.Last().a[0], inputData.expected[0], initialInputs);
 			return layerLearnDatas;
 		}
 
@@ -360,39 +360,6 @@ namespace KKNeuralNetwork
 			lock (layer.adjustB)
 				for (int i = 0; i < layer.nodesOut; i++)
 					layer.adjustB[i] += derivMemo[i];
-		}
-
-		// Logs out a learning state of the network. Used for debugging and monitoring the learning process
-		void LogLearningState(double summedCost, double output, double expected, double[] initialInputs)
-		{
-			try
-			{
-				lock (timer)
-				{
-					overallCost += summedCost;
-					iterationsElapsed++;
-
-					// Log the average cost, outputs, expected values, and inputs at specified time intervals
-					if (timer.Elapsed.TotalSeconds > logUpdateTime)
-					{
-						Console.WriteLine("----- Neural Network Training Log -----");
-						Console.WriteLine($"Average Cost: {overallCost / iterationsElapsed:F4}");
-						Console.WriteLine($"Initial Input: {initialInputs[0]:F4}");
-						Console.WriteLine($"Output (scaled): {output:F4}");
-						Console.WriteLine($"Expected (scaled): {expected:F4}");
-						Console.WriteLine("------ End of Log ------\n");
-
-						overallCost = 0;
-						iterationsElapsed = 0;
-						timer.Restart();
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				// Handle unexpected errors in logging
-				Console.WriteLine("An error occurred during logging: " + ex.Message);
-			}
 		}
 
 		#endregion
